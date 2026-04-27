@@ -1956,14 +1956,7 @@ input {
   .sidebar-left{
     display: none;
   }
-  .sidebar-left:not(.collapsed){
-    display: flex;
-    position: absolute;
-    top: 0; left: 0; bottom: 0;
-    z-index: 50;
-    width: 200px;
-    box-shadow: 4px 0 20px rgba(0,0,0,0.5);
-  }
+
 }
 
 @media (max-width: 480px) {
@@ -1981,9 +1974,7 @@ input {
   .time-display {
     font-size: 8px;
   }
-  .sidebar-left {
-    width: 100px;
-  }
+
   .meme-thumb {
     width: 22px;
     height: 22px;
@@ -2043,7 +2034,7 @@ input {
   <!-- ========== TOP BAR ========== -->
   <div class="topbar">
     <div class="logo-wrap" onclick="location.reload()">
-      <img class="logo-img" src="logo.jpg" alt="MEME ECONOMY" id="logoImage" /> <div class="logo-text">MEME ECONOMY</div>
+      <img class="logo-img" src="logo.jpg" alt="MEME ECONOMY" id="logoImage" /> <div class="logo-text">NASDANQ</div>
     </div>
     <div class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+M)">
   ☰
