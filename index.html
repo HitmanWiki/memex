@@ -40,6 +40,8 @@
   --space: "Space Mono", monospace;
   --glow-green: 0 0 12px rgba(0, 255, 136, 0.3);
   --glow-red: 0 0 12px rgba(255, 51, 102, 0.3);
+  --sidebar-width: 200px;
+  --right-sidebar-width: 230px;
 }
 
 html,
@@ -89,6 +91,27 @@ input {
 ::selection {
   background: var(--green);
   color: #000000;
+}
+/* Sidebar Toggle Button in Topbar */
+.sidebar-toggle{
+  width: 28px; height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  border-radius: 4px;
+  transition: all 0.15s;
+  color: var(--text3);
+  font-size: 16px;
+  line-height: 1;
+}
+.sidebar-toggle:hover{
+  background: var(--bg3);
+  color: var(--text);
+}
+.sidebar-toggle.active{
+  color: var(--green);
 }
 
 /* ============ TERMINAL SHELL ============ */
@@ -393,16 +416,21 @@ input {
 
 /* ============ LEFT SIDEBAR (WATCHLIST) ============ */
 .sidebar-left {
-  width: 200px;
+   width: var(--sidebar-width);
   flex-shrink: 0;
   background: var(--bg2);
   border-right: 1px solid var(--border);
+  transition: width 0.25s ease, border 0.25s ease;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
 }
-
+.sidebar-left.collapsed{
+  width: 0 !important;
+  border-right: none !important;
+  overflow: hidden;
+}
 .section-header {
   padding: 8px 12px;
   border-bottom: 1px solid var(--border);
@@ -1884,6 +1912,19 @@ input {
     display: none;
   }
 }
+@media(max-width: 768px){
+  .sidebar-left{
+    display: none;
+  }
+  .sidebar-left:not(.collapsed){
+    display: flex;
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    z-index: 50;
+    width: 200px;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.5);
+  }
+}
 
 @media (max-width: 480px) {
   .topbar {
@@ -1958,6 +1999,9 @@ input {
       <img class="logo-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%230a0a0a'/%3E%3Ctext x='50' y='68' font-family='monospace' font-size='52' font-weight='900' fill='%2300ff88' text-anchor='middle'%3EN%3C/text%3E%3Crect x='22' y='36' width='4' height='28' rx='2' fill='%2300ff88'/%3E%3Crect x='74' y='36' width='4' height='28' rx='2' fill='%2300ff88'/%3E%3C/svg%3E" alt="N" />
       <div class="logo-text">NASDANQ</div>
     </div>
+    <div class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+M)">
+  ☰
+</div>
     <div class="status-indicator">
       <div class="status-dot"></div>
       <span>LIVE</span>
@@ -1986,7 +2030,7 @@ input {
   <!-- ========== TRADER VIEW ========== -->
   <div class="main-content" id="traderView">
     <!-- LEFT SIDEBAR -->
-    <div class="sidebar-left">
+    <div class="sidebar-left" id="sidebarLeft">
       <div class="section-header">
         <span><span class="live-dot"></span>WATCHLIST</span>
         <span style="font-size:9px;color:var(--cyan)">8</span>
@@ -2416,21 +2460,41 @@ let ticketSide = 'buy';
 let orderType = 'LIMIT';
 let chart = null;
 let timeframe = '1D';
+let sidebarCollapsed = false;
+
+// ============ SIDEBAR TOGGLE ============
+function toggleSidebar() {
+  sidebarCollapsed = !sidebarCollapsed;
+  const sidebar = document.getElementById('sidebarLeft');
+  const toggleBtn = document.getElementById('sidebarToggle');
+  
+  if (sidebarCollapsed) {
+    sidebar.classList.add('collapsed');
+    toggleBtn.classList.add('active');
+  } else {
+    sidebar.classList.remove('collapsed');
+    toggleBtn.classList.remove('active');
+  }
+  
+  // Redraw chart after animation
+  setTimeout(function() {
+    if (chart) chart.resize();
+  }, 300);
+}
 
 // ============ PRICE TICKER IN NAVBAR ============
 function buildPriceTicker() {
   const track = document.getElementById('priceTickerTrack');
-  // Create two copies for seamless loop
   const items = Object.keys(ASSETS).map(ticker => createTickerItem(ticker));
   const allItems = [...items, ...items];
   track.innerHTML = allItems.join('');
 }
 
-function createTickerItem(ticker, miniSpark = true) {
+function createTickerItem(ticker) {
   const a = ASSETS[ticker];
   const pctChg = ((a.price - a.initialPrice) / a.initialPrice * 100);
   const dir = a.dir;
-  const sparkSVG = miniSpark ? generateMiniSparkline(ticker) : '';
+  const sparkSVG = generateMiniSparkline(ticker);
 
   return `
     <div class="ticker-item" onclick="switchView('trader');selectAsset('${ticker}')" data-ticker="${ticker}">
@@ -2465,7 +2529,6 @@ function updatePriceTicker() {
     const pctChg = ((a.price - a.initialPrice) / a.initialPrice * 100);
     const dir = a.dir;
 
-    // Update both copies in the track
     const priceEls = document.querySelectorAll(`#tick-${ticker}-price`);
     const changeEls = document.querySelectorAll(`#tick-${ticker}-change`);
     const symbolEls = document.querySelectorAll(`.ticker-item[data-ticker="${ticker}"] .ticker-symbol`);
@@ -2935,6 +2998,9 @@ function switchView(view) {
   document.getElementById('traderView').style.display = view === 'trader' ? 'flex' : 'none';
   document.getElementById('portfolioView').classList.toggle('active', view === 'portfolio');
   document.getElementById('genesisView').classList.toggle('active', view === 'genesis');
+  
+  // Redraw chart after view switch
+  setTimeout(function() { if (chart) chart.resize(); }, 100);
 }
 
 function quickSearch() {
@@ -2966,7 +3032,9 @@ document.addEventListener('keydown', e => {
     if (e.key === '3') { e.preventDefault(); switchView('genesis'); }
     if (e.key === 'b') { e.preventDefault(); setTicketSide('buy'); }
     if (e.key === 's') { e.preventDefault(); setTicketSide('sell'); }
+    if (e.key === 'm') { e.preventDefault(); toggleSidebar(); }
   }
+  if (e.key === 'Escape') { if (sidebarCollapsed) toggleSidebar(); }
 });
 
 // ============ INITIALIZATION ============
@@ -2981,6 +3049,9 @@ setInterval(simulateTick, 2200);
 setInterval(updateAuction, 1000);
 document.getElementById('portfolioView').classList.remove('active');
 document.getElementById('genesisView').classList.remove('active');
+
+// Handle window resize for chart
+window.addEventListener('resize', function() { if (chart) chart.resize(); });
 </script>
 </body>
 </html>
