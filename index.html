@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MEMEX PRO — Meme Market Exchange</title>
+<title>NASDANQ — Meme Market Exchange</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -71,7 +71,6 @@ input {
   outline: none;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -112,21 +111,157 @@ input {
   padding: 0 12px;
   gap: 10px;
   z-index: 100;
+  position: relative;
 }
 
-.logo {
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: contain;
+  background: #fff;
+  padding: 2px;
+}
+
+.logo-text {
   font-family: var(--space);
   font-size: 13px;
   font-weight: 700;
   color: var(--green);
-  letter-spacing: 2px;
-  cursor: pointer;
-  flex-shrink: 0;
+  letter-spacing: 1.5px;
   text-shadow: var(--glow-green);
 }
 
-.logo span {
+.logo-text span {
   color: var(--text4);
+}
+
+/* Price Ticker in Navbar */
+.price-ticker-wrap {
+  flex: 1;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  position: relative;
+  min-width: 0;
+}
+
+.price-ticker-wrap::before,
+.price-ticker-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 30px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.price-ticker-wrap::before {
+  left: 0;
+  background: linear-gradient(to right, var(--bg2) 0%, transparent 100%);
+}
+
+.price-ticker-wrap::after {
+  right: 0;
+  background: linear-gradient(to left, var(--bg2) 0%, transparent 100%);
+}
+
+.price-ticker-track {
+  display: flex;
+  gap: 0;
+  white-space: nowrap;
+  animation: tickerScroll 40s linear infinite;
+}
+
+.price-ticker-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes tickerScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  font-size: 10px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.ticker-item:hover {
+  color: #fff;
+}
+
+.ticker-symbol {
+  font-weight: 700;
+  font-family: var(--space);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+.ticker-symbol.up {
+  color: var(--green);
+}
+.ticker-symbol.down {
+  color: var(--red);
+}
+.ticker-symbol.flat {
+  color: var(--text2);
+}
+
+.ticker-price {
+  font-weight: 500;
+  font-family: var(--space);
+  font-size: 10px;
+}
+
+.ticker-price.up {
+  color: var(--green);
+}
+.ticker-price.down {
+  color: var(--red);
+}
+
+.ticker-change {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+.ticker-change.up {
+  background: rgba(0, 255, 136, 0.12);
+  color: var(--green);
+}
+
+.ticker-change.down {
+  background: rgba(255, 51, 102, 0.12);
+  color: var(--red);
+}
+
+.ticker-spark {
+  width: 40px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 .status-indicator {
@@ -165,9 +300,8 @@ input {
 
 .search-wrap {
   position: relative;
-  flex: 1;
-  min-width: 150px;
-  max-width: 300px;
+  flex-shrink: 0;
+  width: 180px;
 }
 
 .search-icon {
@@ -1651,6 +1785,16 @@ input {
   .watch-price {
     font-size: 9px;
   }
+  .price-ticker-wrap {
+    max-width: 300px;
+  }
+  .ticker-item {
+    padding: 0 10px;
+    font-size: 9px;
+  }
+  .ticker-symbol {
+    font-size: 10px;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -1671,6 +1815,12 @@ input {
   }
   .price-main {
     font-size: 15px;
+  }
+  .price-ticker-wrap {
+    max-width: 200px;
+  }
+  .ticker-spark {
+    display: none;
   }
 }
 
@@ -1703,9 +1853,6 @@ input {
   .ticket-area {
     padding: 8px 10px;
   }
-  .ticket-tabs {
-    flex-direction: row;
-  }
   .order-type-row {
     flex-wrap: wrap;
   }
@@ -1718,7 +1865,7 @@ input {
     font-size: 9px;
   }
   .search-wrap {
-    max-width: 150px;
+    width: 120px;
   }
   .tf-indicators {
     display: none;
@@ -1733,6 +1880,9 @@ input {
   .genesis-timers {
     grid-template-columns: 1fr;
   }
+  .price-ticker-wrap {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1740,7 +1890,7 @@ input {
     padding: 0 6px;
     gap: 4px;
   }
-  .logo {
+  .logo-text {
     font-size: 11px;
     letter-spacing: 1px;
   }
@@ -1804,15 +1954,26 @@ input {
 <div class="terminal">
   <!-- ========== TOP BAR ========== -->
   <div class="topbar">
-    <div class="logo" onclick="location.reload()">MEMEX<span>PRO</span></div>
+    <div class="logo-wrap" onclick="location.reload()">
+      <img class="logo-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%230a0a0a'/%3E%3Ctext x='50' y='68' font-family='monospace' font-size='52' font-weight='900' fill='%2300ff88' text-anchor='middle'%3EN%3C/text%3E%3Crect x='22' y='36' width='4' height='28' rx='2' fill='%2300ff88'/%3E%3Crect x='74' y='36' width='4' height='28' rx='2' fill='%2300ff88'/%3E%3C/svg%3E" alt="N" />
+      <div class="logo-text">NASDANQ</div>
+    </div>
     <div class="status-indicator">
-      <div class="status-dot" id="statusDot"></div>
+      <div class="status-dot"></div>
       <span>LIVE</span>
       <span class="conn-speed" id="connSpeed">2ms</span>
     </div>
+
+    <!-- PRICE SCROLLING TICKER IN NAVBAR -->
+    <div class="price-ticker-wrap">
+      <div class="price-ticker-track" id="priceTickerTrack">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
     <div class="search-wrap">
       <span class="search-icon">⌕</span>
-      <input type="text" class="search-input" id="globalSearch" placeholder="Search ticker / meme..." onkeydown="if(event.key==='Enter')quickSearch()" />
+      <input type="text" class="search-input" id="globalSearch" placeholder="Search ticker..." onkeydown="if(event.key==='Enter')quickSearch()" />
     </div>
     <div class="nav-tabs">
       <div class="nav-tab active" onclick="switchView('trader')">TRADER</div>
@@ -1831,7 +1992,6 @@ input {
         <span style="font-size:9px;color:var(--cyan)">8</span>
       </div>
       <div class="tier-divider">TIER 1 — ARCHETYPE</div>
-      <!-- Watchlist items populated by JS -->
       <div id="watchlistContainer"></div>
       <div class="movers-section">
         <div class="section-header">TOP MOVERS (24H)</div>
@@ -1841,7 +2001,6 @@ input {
 
     <!-- CENTER PANEL -->
     <div class="center-panel">
-      <!-- Asset Header -->
       <div class="asset-header">
         <img class="asset-icon" id="hdrIcon" src="" alt="" />
         <div class="asset-details">
@@ -1862,7 +2021,6 @@ input {
         </div>
       </div>
 
-      <!-- Timeframe Bar -->
       <div class="tf-bar">
         <div class="tf-tab active" onclick="setTimeframe(this,'1H')">1H</div>
         <div class="tf-tab" onclick="setTimeframe(this,'4H')">4H</div>
@@ -1876,12 +2034,10 @@ input {
         </div>
       </div>
 
-      <!-- Chart -->
       <div class="chart-area">
         <canvas id="mainChart"></canvas>
       </div>
 
-      <!-- Order Flow -->
       <div class="order-flow">
         <div class="order-book-panel">
           <div class="ob-header"><span>PRICE</span><span>SIZE</span><span>TOTAL</span></div>
@@ -1897,7 +2053,6 @@ input {
         </div>
       </div>
 
-      <!-- Trade Ticket -->
       <div class="ticket-area">
         <div class="ticket-tabs">
           <div class="ticket-tab buy active" onclick="setTicketSide('buy')">BUY</div>
@@ -2061,7 +2216,7 @@ input {
 
   <!-- ========== NEWS TAPE ========== -->
   <div class="news-tape">
-    <div class="tape-label">▶ MEMEX WIRE</div>
+    <div class="tape-label">▶ NASDANQ WIRE</div>
     <div class="tape-scroll">
       <div class="tape-track">
         <span class="tape-item"><span class="tape-ticker">PEPE</span><span class="tape-dot">·</span><span class="tape-headline">Rare Pepe #4410 trades at 100K USDC — Archetype ATH</span></span>
@@ -2078,7 +2233,7 @@ input {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-// ============ MEME IMAGE URLS (Real meme images) ============
+// ============ MEME IMAGE URLS ============
 const MEME_IMAGES = {
   PEPE: 'https://upload.wikimedia.org/wikipedia/en/6/63/Feels_good_man.jpg',
   RROL: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c8/Rick_Astley_-_Never_Gonna_Give_You_Up.png/220px-Rick_Astley_-_Never_Gonna_Give_You_Up.png',
@@ -2094,20 +2249,12 @@ const MEME_IMAGES = {
 const ASSETS = {
   PEPE: {
     name: 'Rare Pepe Classic · Matt Furie 2005',
-    price: 0.0069,
-    change: '+8.2%',
-    dir: 'up',
-    tier: 'ARCHETYPE',
-    vintage: '2005',
-    supply: '6,969',
-    royalty: '5%',
+    price: 0.0069, change: '+8.2%', dir: 'up', tier: 'ARCHETYPE',
+    vintage: '2005', supply: '6,969', royalty: '5%',
     hash: '0x9f2c4a1b7d3e8a6c5f2b9d1a4e7c3b8f2d4a',
-    scarcity: 94,
-    note: 'ULTRA-RARE',
+    scarcity: 94, note: 'ULTRA-RARE',
     microcopy: 'Feels good man. Provably rare.',
-    volume24h: 1247,
-    high24h: 0.0072,
-    low24h: 0.0064,
+    volume24h: 1247, high24h: 0.0072, low24h: 0.0064,
     ancestry: [
       { y: '2005', n: 'Feels Good Man (Matt Furie)', c: '#00ff88' },
       { y: '2008', n: '4chan emergence', c: '#00d4ff' },
@@ -2122,20 +2269,12 @@ const ASSETS = {
   },
   RROL: {
     name: 'Original RickRoll · 2006 YouTube',
-    price: 4.20,
-    change: '+12.4%',
-    dir: 'up',
-    tier: 'ARCHETYPE',
-    vintage: '2006',
-    supply: '10,000',
-    royalty: '2%',
+    price: 4.20, change: '+12.4%', dir: 'up', tier: 'ARCHETYPE',
+    vintage: '2006', supply: '10,000', royalty: '2%',
     hash: '0x7a3b9f2c1e8d4a6b3c5f9d2e1a8b4c7f8f2c',
-    scarcity: 87,
-    note: 'DIAMOND HANDS',
-    microcopy: "You're about to RickRoll yourself. Confirm?",
-    volume24h: 3420,
-    high24h: 4.45,
-    low24h: 3.89,
+    scarcity: 87, note: 'DIAMOND HANDS',
+    microcopy: "You're about to RickRoll yourself.",
+    volume24h: 3420, high24h: 4.45, low24h: 3.89,
     ancestry: [
       { y: '2006', n: 'Original RickRoll (YouTube)', c: '#00ff88' },
       { y: '2007', n: "RickRoll'd phenomenon", c: '#00d4ff' },
@@ -2150,20 +2289,12 @@ const ASSETS = {
   },
   DOGE: {
     name: 'Such Doge Wow · Kabosu 2010',
-    price: 0.42,
-    change: '+3.1%',
-    dir: 'up',
-    tier: 'ARCHETYPE',
-    vintage: '2010',
-    supply: '42,000',
-    royalty: '1%',
+    price: 0.42, change: '+3.1%', dir: 'up', tier: 'ARCHETYPE',
+    vintage: '2010', supply: '42,000', royalty: '1%',
     hash: '0x3c8b2d5f9a1e4b7d6c8f2a3e5b9d1c7f9f1a',
-    scarcity: 71,
-    note: 'MODERATE',
+    scarcity: 71, note: 'MODERATE',
     microcopy: 'Much wow. Very CDMR. So trade.',
-    volume24h: 8700,
-    high24h: 0.44,
-    low24h: 0.40,
+    volume24h: 8700, high24h: 0.44, low24h: 0.40,
     ancestry: [
       { y: '2010', n: 'Kabosu photo (original)', c: '#00ff88' },
       { y: '2013', n: 'Doge meme birth', c: '#00d4ff' },
@@ -2176,20 +2307,12 @@ const ASSETS = {
   },
   NYAN: {
     name: 'Nyan Cat · prguitarman 2011',
-    price: 6.66,
-    change: '+4.2%',
-    dir: 'up',
-    tier: 'ARCHETYPE',
-    vintage: '2011',
-    supply: '6,660',
-    royalty: '3%',
+    price: 6.66, change: '+4.2%', dir: 'up', tier: 'ARCHETYPE',
+    vintage: '2011', supply: '6,660', royalty: '3%',
     hash: '0x4f9a2b6c1e3d8a5b7d2c9f4e1a6b3c8f2c9f',
-    scarcity: 82,
-    note: 'STRONG HANDS',
-    microcopy: 'Poptart cat confirmed. Buy the rainbow.',
-    volume24h: 820,
-    high24h: 6.80,
-    low24h: 6.40,
+    scarcity: 82, note: 'STRONG HANDS',
+    microcopy: 'Poptart cat confirmed.',
+    volume24h: 820, high24h: 6.80, low24h: 6.40,
     ancestry: [
       { y: '2011', n: 'Original Nyan Cat video', c: '#00ff88' },
       { y: '2011', n: 'YouTube viral explosion', c: '#00d4ff' },
@@ -2202,20 +2325,12 @@ const ASSETS = {
   },
   WOJAK: {
     name: 'Wojak / Feels Bad Man · 2010',
-    price: 1.99,
-    change: '-5.4%',
-    dir: 'down',
-    tier: 'PROTO-MEME',
-    vintage: '2010',
-    supply: '2,010',
-    royalty: '3%',
+    price: 1.99, change: '-5.4%', dir: 'down', tier: 'PROTO-MEME',
+    vintage: '2010', supply: '2,010', royalty: '3%',
     hash: '0x2a9c3d5b1f8e4a6c7d3b2a5c9f1e4d8a3b2a',
-    scarcity: 68,
-    note: 'VOLATILE',
-    microcopy: "It's crying time. Sell? Or hold?",
-    volume24h: 2180,
-    high24h: 2.12,
-    low24h: 1.95,
+    scarcity: 68, note: 'VOLATILE',
+    microcopy: "It's crying time. Sell?",
+    volume24h: 2180, high24h: 2.12, low24h: 1.95,
     ancestry: [
       { y: '2010', n: 'Wojak original (Polish forums)', c: '#00ff88' },
       { y: '2012', n: 'Feels bad man spread', c: '#00d4ff' },
@@ -2228,20 +2343,12 @@ const ASSETS = {
   },
   CHAD: {
     name: 'Virgin vs Chad · 2017',
-    price: 3.14,
-    change: '+6.9%',
-    dir: 'up',
-    tier: 'PROTO-MEME',
-    vintage: '2017',
-    supply: '3,141',
-    royalty: '3%',
+    price: 3.14, change: '+6.9%', dir: 'up', tier: 'PROTO-MEME',
+    vintage: '2017', supply: '3,141', royalty: '3%',
     hash: '0x6b1e4f9c2a3d5e8b7a4c1f2d6e9a3b5c7a4c',
-    scarcity: 75,
-    note: 'CONVICTION',
+    scarcity: 75, note: 'CONVICTION',
     microcopy: 'Based. Buy like a Chad.',
-    volume24h: 1560,
-    high24h: 3.28,
-    low24h: 2.98,
+    volume24h: 1560, high24h: 3.28, low24h: 2.98,
     ancestry: [
       { y: '2017', n: 'Virgin vs Chad original', c: '#00ff88' },
       { y: '2018', n: 'Nordic Gamer variant', c: '#00d4ff' },
@@ -2254,20 +2361,12 @@ const ASSETS = {
   },
   FPNC: {
     name: 'FatPenguin NonCorp · OTC Pink 2006',
-    price: 1.08,
-    change: '+0.9%',
-    dir: 'up',
-    tier: 'PROTO-MEME',
-    vintage: '2006',
-    supply: '2,000',
-    royalty: '3%',
+    price: 1.08, change: '+0.9%', dir: 'up', tier: 'PROTO-MEME',
+    vintage: '2006', supply: '2,000', royalty: '3%',
     hash: '0x2b7f9a3c1e5d8b4a7c3b6f1a2d9e4c5a7c3b',
-    scarcity: 62,
-    note: 'OTC HERITAGE',
-    microcopy: 'OTC legend. Genesis holder priority.',
-    volume24h: 420,
-    high24h: 1.10,
-    low24h: 1.05,
+    scarcity: 62, note: 'OTC HERITAGE',
+    microcopy: 'OTC legend. Genesis priority.',
+    volume24h: 420, high24h: 1.10, low24h: 1.05,
     ancestry: [
       { y: '2006', n: 'FPNC Pink Sheet listing', c: '#00ff88' },
       { y: '2007', n: 'Forum cult following', c: '#9d6fff' },
@@ -2280,20 +2379,12 @@ const ASSETS = {
   },
   LOSS: {
     name: 'Loss.jpg · Ctrl+Alt+Del 2008',
-    price: 2.11,
-    change: '+0.0%',
-    dir: 'flat',
-    tier: 'PROTO-MEME',
-    vintage: '2008',
-    supply: '2,008',
-    royalty: '2%',
+    price: 2.11, change: '+0.0%', dir: 'flat', tier: 'PROTO-MEME',
+    vintage: '2008', supply: '2,008', royalty: '2%',
     hash: '0x8e4c6f1a3b9d2e5c1a3b4f7d6c2e9a5b1a3b',
-    scarcity: 78,
-    note: 'CONCENTRATED',
+    scarcity: 78, note: 'CONCENTRATED',
     microcopy: 'Is this... a buy signal?',
-    volume24h: 620,
-    high24h: 2.15,
-    low24h: 2.08,
+    volume24h: 620, high24h: 2.15, low24h: 2.08,
     ancestry: [
       { y: '2008', n: 'Loss.jpg published (CAD)', c: '#00ff88' },
       { y: '2009', n: 'Ironic rediscovery', c: '#9d6fff' },
@@ -2326,35 +2417,92 @@ let orderType = 'LIMIT';
 let chart = null;
 let timeframe = '1D';
 
+// ============ PRICE TICKER IN NAVBAR ============
+function buildPriceTicker() {
+  const track = document.getElementById('priceTickerTrack');
+  // Create two copies for seamless loop
+  const items = Object.keys(ASSETS).map(ticker => createTickerItem(ticker));
+  const allItems = [...items, ...items];
+  track.innerHTML = allItems.join('');
+}
+
+function createTickerItem(ticker, miniSpark = true) {
+  const a = ASSETS[ticker];
+  const pctChg = ((a.price - a.initialPrice) / a.initialPrice * 100);
+  const dir = a.dir;
+  const sparkSVG = miniSpark ? generateMiniSparkline(ticker) : '';
+
+  return `
+    <div class="ticker-item" onclick="switchView('trader');selectAsset('${ticker}')" data-ticker="${ticker}">
+      <span class="ticker-symbol ${dir}">${ticker}</span>
+      <span class="ticker-price ${dir}" id="tick-${ticker}-price">${fmtPrice(a.price)}</span>
+      <span class="ticker-change ${dir}" id="tick-${ticker}-change">${pctChg >= 0 ? '+' : ''}${pctChg.toFixed(1)}%</span>
+      ${sparkSVG}
+    </div>
+  `;
+}
+
+function generateMiniSparkline(ticker) {
+  const history = ASSETS[ticker].priceHistory.slice(-20);
+  if (history.length < 2) return '';
+  const min = Math.min(...history);
+  const max = Math.max(...history);
+  const range = max - min || 1;
+  const w = 40, h = 14;
+  const points = history.map((v, i) => {
+    const x = (i / (history.length - 1)) * w;
+    const y = h - ((v - min) / range) * h;
+    return `${x},${y}`;
+  });
+  const isUp = history[history.length - 1] >= history[0];
+  const color = isUp ? '%2300ff88' : '%23ff3366';
+  return `<svg class="ticker-spark" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg"><polyline points="${points.join(' ')}" fill="none" stroke="${color}" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+function updatePriceTicker() {
+  Object.keys(ASSETS).forEach(ticker => {
+    const a = ASSETS[ticker];
+    const pctChg = ((a.price - a.initialPrice) / a.initialPrice * 100);
+    const dir = a.dir;
+
+    // Update both copies in the track
+    const priceEls = document.querySelectorAll(`#tick-${ticker}-price`);
+    const changeEls = document.querySelectorAll(`#tick-${ticker}-change`);
+    const symbolEls = document.querySelectorAll(`.ticker-item[data-ticker="${ticker}"] .ticker-symbol`);
+
+    priceEls.forEach(el => {
+      el.textContent = fmtPrice(a.price);
+      el.className = 'ticker-price ' + dir;
+    });
+    changeEls.forEach(el => {
+      el.textContent = (pctChg >= 0 ? '+' : '') + pctChg.toFixed(1) + '%';
+      el.className = 'ticker-change ' + dir;
+    });
+    symbolEls.forEach(el => {
+      el.className = 'ticker-symbol ' + dir;
+    });
+  });
+}
+
 // ============ BUILD WATCHLIST ============
 function buildWatchlist() {
   const container = document.getElementById('watchlistContainer');
   container.innerHTML = '';
-
   const tier1 = ['PEPE', 'RROL', 'DOGE', 'NYAN'];
   const tier2 = ['WOJAK', 'CHAD', 'FPNC', 'LOSS'];
 
-  // Tier 1
   const tier1Label = document.createElement('div');
   tier1Label.className = 'tier-divider';
   tier1Label.textContent = 'TIER 1 — ARCHETYPE';
   container.appendChild(tier1Label);
+  tier1.forEach(t => container.appendChild(createWatchItem(t)));
 
-  tier1.forEach(ticker => {
-    container.appendChild(createWatchItem(ticker));
-  });
-
-  // Tier 2
   const tier2Label = document.createElement('div');
   tier2Label.className = 'tier-divider';
   tier2Label.textContent = 'TIER 2 — PROTO-MEME';
   container.appendChild(tier2Label);
+  tier2.forEach(t => container.appendChild(createWatchItem(t)));
 
-  tier2.forEach(ticker => {
-    container.appendChild(createWatchItem(ticker));
-  });
-
-  // Set PEPE as active
   const firstItem = container.querySelector('.watch-item');
   if (firstItem) firstItem.classList.add('active');
 }
@@ -2365,7 +2513,6 @@ function createWatchItem(ticker) {
   div.className = 'watch-item';
   div.setAttribute('data-ticker', ticker);
   div.onclick = function() { selectAsset(ticker, this); };
-
   div.innerHTML = `
     <img class="meme-thumb" src="${MEME_IMAGES[ticker]}" alt="${ticker}" onerror="this.style.background='var(--bg5)';this.style.border='1px dashed var(--border2)'" />
     <div class="watch-info">
@@ -2378,7 +2525,6 @@ function createWatchItem(ticker) {
       <div class="watch-volume" id="w-${ticker}-vol">Vol ${abbrevNum(a.volume24h)}</div>
     </div>
   `;
-
   return div;
 }
 
@@ -2419,59 +2565,43 @@ function selectAsset(ticker, el) {
 
   const a = ASSETS[ticker];
 
-  // Header
   document.getElementById('hdrIcon').src = MEME_IMAGES[ticker];
-  document.getElementById('hdrIcon').onerror = function() { this.style.background = 'var(--bg5)'; this.style.border = '1px dashed var(--border2)'; };
+  document.getElementById('hdrIcon').onerror = function() { this.style.background = 'var(--bg5)'; };
   document.getElementById('hdrTicker').textContent = ticker;
   document.getElementById('hdrTicker').className = 'asset-ticker ' + a.dir;
   document.getElementById('hdrName').textContent = a.name;
   document.getElementById('hdrTier').textContent = a.tier;
   document.getElementById('hdrPrice').textContent = fmtPrice(a.price);
   document.getElementById('hdrPrice').className = 'price-main ' + a.dir;
-  document.getElementById('hdrChange').textContent = (a.dir === 'up' ? '▲ ' : '▼ ') + a.change;
+  document.getElementById('hdrChange').textContent = (a.dir === 'up' ? '▲ ' : a.dir === 'down' ? '▼ ' : '') + a.change;
   document.getElementById('hdrChange').className = 'price-change ' + a.dir;
   document.getElementById('hdrHigh').textContent = fmtPrice(a.high24h);
   document.getElementById('hdrLow').textContent = fmtPrice(a.low24h);
 
-  // Provenance
   document.getElementById('provTicker').textContent = ticker;
   document.getElementById('provVintage').textContent = a.vintage;
   document.getElementById('provSupply').textContent = a.supply;
   document.getElementById('provRoyalty').textContent = a.royalty + '%';
   document.getElementById('provHash').textContent = a.hash;
 
-  // Scarcity
   document.getElementById('scarcityBar').style.width = a.scarcity + '%';
   document.getElementById('scarcityPct').textContent = a.scarcity + '%';
   document.getElementById('scarcityLabel').textContent = a.note;
   document.getElementById('distTop10').textContent = a.scarcity + '%';
   document.getElementById('distTop50').textContent = Math.min(100, a.scarcity + 4) + '%';
   document.getElementById('distRest').textContent = Math.max(0, 100 - a.scarcity - 4) + '%';
-
-  // Update scarcity segment flex
   document.getElementById('segTop10').style.flex = a.scarcity;
   document.getElementById('segTop50').style.flex = Math.min(100 - a.scarcity, 4);
   document.getElementById('segRest').style.flex = Math.max(1, 100 - a.scarcity - 4);
 
-  // Ticket
   document.getElementById('ticketPrice').value = fmtPrice(a.price);
   document.getElementById('ticketMicro').textContent = a.microcopy;
   updateTicketTotal();
-
-  // Ancestry
   renderAncestry(a.ancestry);
-
-  // Accessories
   renderAccessories(a.accessories);
-
-  // Order book & trades
   renderOrderBook(a.price);
   renderTrades(a.price);
-
-  // Chart
   renderChart();
-
-  // Volume footer
   document.getElementById('tradesVolFooter').textContent = '24H VOL: ' + a.volume24h.toLocaleString() + ' CDMR';
   document.getElementById('oiDisplay').textContent = (a.volume24h * 0.012).toFixed(1) + 'K';
   document.getElementById('vwapDisplay').textContent = fmtPrice(a.price * 0.995);
@@ -2557,10 +2687,7 @@ function renderOrderBook(mid) {
       <span class="ob-size">${abbrevNum(level.s)}</span>
       <span class="ob-total">${abbrevNum(level.c)}</span>
     `;
-    row.onclick = () => {
-      document.getElementById('ticketPrice').value = level.p.toFixed(decimals);
-      updateTicketTotal();
-    };
+    row.onclick = () => { document.getElementById('ticketPrice').value = level.p.toFixed(decimals); updateTicketTotal(); };
     askContainer.appendChild(row);
   });
 
@@ -2574,10 +2701,7 @@ function renderOrderBook(mid) {
       <span class="ob-size">${abbrevNum(level.s)}</span>
       <span class="ob-total">${abbrevNum(level.c)}</span>
     `;
-    row.onclick = () => {
-      document.getElementById('ticketPrice').value = level.p.toFixed(decimals);
-      updateTicketTotal();
-    };
+    row.onclick = () => { document.getElementById('ticketPrice').value = level.p.toFixed(decimals); updateTicketTotal(); };
     bidContainer.appendChild(row);
   });
 }
@@ -2594,14 +2718,12 @@ function renderTrades(mid) {
     const p = mid + offset;
     const s = Math.floor(Math.random() * 300) + 10;
     const t = new Date(now - i * 15000);
-    const ts = t.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-
     const row = document.createElement('div');
     row.className = 'trade-row ' + side;
     row.innerHTML = `
       <span class="trade-price">${p.toFixed(decimals)}</span>
       <span class="trade-size">${s}</span>
-      <span class="trade-time">${ts}</span>
+      <span class="trade-time">${t.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})}</span>
     `;
     tape.appendChild(row);
   }
@@ -2610,11 +2732,9 @@ function renderTrades(mid) {
 function renderChart() {
   const ctx = document.getElementById('mainChart').getContext('2d');
   if (chart) chart.destroy();
-
   const a = ASSETS[currentAsset];
   const history = a.priceHistory;
   const labels = [], closes = [], volumes = [];
-
   const pointCount = timeframe === '1H' ? 12 : timeframe === '4H' ? 24 : timeframe === '1D' ? 48 : timeframe === '1W' ? 60 : timeframe === '1M' ? 80 : history.length;
   const step = Math.max(1, Math.floor(history.length / pointCount));
 
@@ -2630,54 +2750,15 @@ function renderChart() {
     data: {
       labels,
       datasets: [
-        {
-          label: 'Price',
-          data: closes,
-          borderColor: isUp ? '#00ff88' : '#ff3366',
-          borderWidth: 1.5,
-          pointRadius: 0,
-          tension: 0.3,
-          fill: false
-        },
-        {
-          label: 'Volume',
-          data: volumes,
-          backgroundColor: 'rgba(0,212,255,0.12)',
-          borderColor: 'rgba(0,212,255,0.2)',
-          borderWidth: 0.5,
-          type: 'bar',
-          yAxisID: 'y2',
-          barPercentage: 0.8
-        }
+        { label: 'Price', data: closes, borderColor: isUp ? '#00ff88' : '#ff3366', borderWidth: 1.5, pointRadius: 0, tension: 0.3, fill: false },
+        { label: 'Volume', data: volumes, backgroundColor: 'rgba(0,212,255,0.12)', borderColor: 'rgba(0,212,255,0.2)', borderWidth: 0.5, type: 'bar', yAxisID: 'y2', barPercentage: 0.8 }
       ]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: { duration: 250 },
+      responsive: true, maintainAspectRatio: false, animation: { duration: 250 },
       interaction: { intersect: false, mode: 'index' },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#1a1a1a',
-          borderColor: '#333',
-          titleFont: { family: "'IBM Plex Mono', monospace", size: 10 },
-          bodyFont: { family: "'IBM Plex Mono', monospace", size: 9 }
-        }
-      },
-      scales: {
-        x: { display: false },
-        y: {
-          position: 'right',
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: {
-            color: '#666',
-            font: { size: 8, family: "'IBM Plex Mono', monospace" },
-            callback: v => fmtPrice(v)
-          }
-        },
-        y2: { display: false }
-      }
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1a1a1a', borderColor: '#333', titleFont: { family: "'IBM Plex Mono', monospace", size: 10 }, bodyFont: { family: "'IBM Plex Mono', monospace", size: 9 } } },
+      scales: { x: { display: false }, y: { position: 'right', grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#666', font: { size: 8, family: "'IBM Plex Mono', monospace" }, callback: v => fmtPrice(v) } }, y2: { display: false } }
     }
   });
 }
@@ -2704,13 +2785,8 @@ function setOrderType(el, type) {
   el.classList.add('active');
   orderType = type;
   const priceInput = document.getElementById('ticketPrice');
-  if (type === 'MARKET') {
-    priceInput.disabled = true;
-    priceInput.style.opacity = '0.5';
-  } else {
-    priceInput.disabled = false;
-    priceInput.style.opacity = '1';
-  }
+  priceInput.disabled = type === 'MARKET';
+  priceInput.style.opacity = type === 'MARKET' ? '0.5' : '1';
 }
 
 function setQtyPct(pct) {
@@ -2728,31 +2804,24 @@ function submitOrder() {
   btn.style.opacity = '0.7';
   btn.style.boxShadow = ticketSide === 'buy' ? '0 0 20px rgba(0,255,136,0.6)' : '0 0 20px rgba(255,51,102,0.6)';
 
-  // Add to trade tape
   const tape = document.getElementById('tradesTape');
   const price = parseFloat(document.getElementById('ticketPrice').value.replace(',', ''));
   const qty = parseInt(document.getElementById('ticketQty').value.replace(',', ''));
-  const now = new Date();
   const row = document.createElement('div');
   row.className = 'trade-row ' + ticketSide;
   row.innerHTML = `
     <span class="trade-price">${fmtPrice(price)}</span>
     <span class="trade-size">${qty}</span>
-    <span class="trade-time">${now.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})}</span>
+    <span class="trade-time">${new Date().toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})}</span>
   `;
   row.style.animation = 'flashGreen 0.6s ease-out';
   tape.insertBefore(row, tape.firstChild);
   if (tape.children.length > 20) tape.removeChild(tape.lastChild);
 
-  // Update volume
   ASSETS[currentAsset].volume24h += qty;
   document.getElementById('tradesVolFooter').textContent = '24H VOL: ' + ASSETS[currentAsset].volume24h.toLocaleString() + ' CDMR';
 
-  setTimeout(() => {
-    btn.textContent = origTxt;
-    btn.style.opacity = '1';
-    btn.style.boxShadow = 'none';
-  }, 2500);
+  setTimeout(() => { btn.textContent = origTxt; btn.style.opacity = '1'; btn.style.boxShadow = 'none'; }, 2500);
 }
 
 function setTimeframe(el, tf) {
@@ -2773,29 +2842,21 @@ function simulateTick() {
     a.priceHistory.push(a.price);
     if (a.priceHistory.length > 120) a.priceHistory.shift();
 
-    // Update direction
     const pctChg = (a.price - a.initialPrice) / a.initialPrice * 100;
     a.dir = pctChg >= 0.01 ? 'up' : pctChg <= -0.01 ? 'down' : 'flat';
     a.change = (pctChg >= 0 ? '+' : '') + pctChg.toFixed(1) + '%';
     a.high24h = Math.max(a.high24h, a.price);
     a.low24h = Math.min(a.low24h, a.price);
 
-    // Update watchlist
     const tickerEl = document.getElementById('w-' + ticker + '-ticker');
     const priceEl = document.getElementById('w-' + ticker + '-price');
     const changeEl = document.getElementById('w-' + ticker + '-change');
     const volEl = document.getElementById('w-' + ticker + '-vol');
     const itemEl = document.querySelector(`.watch-item[data-ticker="${ticker}"]`);
 
-    if (priceEl) {
-      priceEl.textContent = fmtPrice(a.price);
-      priceEl.className = 'watch-price ' + (a.price >= oldPrice ? 'up' : 'down');
-    }
+    if (priceEl) { priceEl.textContent = fmtPrice(a.price); priceEl.className = 'watch-price ' + (a.price >= oldPrice ? 'up' : 'down'); }
     if (tickerEl) tickerEl.className = 'watch-ticker ' + a.dir;
-    if (changeEl) {
-      changeEl.textContent = a.change;
-      changeEl.className = 'watch-change ' + a.dir;
-    }
+    if (changeEl) { changeEl.textContent = a.change; changeEl.className = 'watch-change ' + a.dir; }
     if (volEl) volEl.textContent = 'Vol ' + abbrevNum(a.volume24h);
     if (itemEl && a.price !== oldPrice) {
       itemEl.classList.remove('flash-up', 'flash-down');
@@ -2804,12 +2865,14 @@ function simulateTick() {
     }
   });
 
-  // Update current asset display
+  // Update navbar price ticker
+  updatePriceTicker();
+
   if (currentAsset) {
     const a = ASSETS[currentAsset];
     document.getElementById('hdrPrice').textContent = fmtPrice(a.price);
     document.getElementById('hdrPrice').className = 'price-main ' + a.dir;
-    document.getElementById('hdrChange').textContent = (a.dir === 'up' ? '▲ ' : '▼ ') + a.change;
+    document.getElementById('hdrChange').textContent = (a.dir === 'up' ? '▲ ' : a.dir === 'down' ? '▼ ' : '') + a.change;
     document.getElementById('hdrChange').className = 'price-change ' + a.dir;
     document.getElementById('hdrHigh').textContent = fmtPrice(a.high24h);
     document.getElementById('hdrLow').textContent = fmtPrice(a.low24h);
@@ -2817,26 +2880,23 @@ function simulateTick() {
     updateTicketTotal();
     document.getElementById('vwapDisplay').textContent = fmtPrice(a.price * 0.995);
 
-    // Inject trade
     if (Math.random() > 0.35) {
       const tape = document.getElementById('tradesTape');
       const side = Math.random() > 0.5 ? 'buy' : 'sell';
       const p = a.price + ((side === 'buy' ? 1 : -1) * Math.random() * a.price * 0.005);
       const s = Math.floor(Math.random() * 200) + 5;
-      const t = new Date();
       const row = document.createElement('div');
       row.className = 'trade-row ' + side;
       row.innerHTML = `
         <span class="trade-price">${p.toFixed(fmtDecimals(a.price))}</span>
         <span class="trade-size">${s}</span>
-        <span class="trade-time">${t.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})}</span>
+        <span class="trade-time">${new Date().toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})}</span>
       `;
       tape.insertBefore(row, tape.firstChild);
       if (tape.children.length > 20) tape.removeChild(tape.lastChild);
       a.volume24h += s;
       document.getElementById('tradesVolFooter').textContent = '24H VOL: ' + a.volume24h.toLocaleString() + ' CDMR';
     }
-
     renderOrderBook(a.price);
   }
 
@@ -2850,10 +2910,8 @@ function updateAuction() {
   const el = document.getElementById('auctionTimer');
   if (el && auctionSeconds > 0) {
     auctionSeconds--;
-    const h = Math.floor(auctionSeconds / 3600);
-    const m = Math.floor((auctionSeconds % 3600) / 60);
-    const s = auctionSeconds % 60;
-    el.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    const h = Math.floor(auctionSeconds / 3600), m = Math.floor((auctionSeconds % 3600) / 60), s = auctionSeconds % 60;
+    el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   }
 }
 
@@ -2862,12 +2920,8 @@ function submitGenesisBid() {
   const orig = btn.textContent;
   btn.textContent = '✓ BID SEALED';
   btn.style.boxShadow = '0 0 30px rgba(255,184,0,0.6)';
-  const countEl = document.getElementById('bidCount');
-  countEl.textContent = (parseInt(countEl.textContent) + 1).toString();
-  setTimeout(() => {
-    btn.textContent = orig;
-    btn.style.boxShadow = 'none';
-  }, 3000);
+  document.getElementById('bidCount').textContent = (parseInt(document.getElementById('bidCount').textContent) + 1).toString();
+  setTimeout(() => { btn.textContent = orig; btn.style.boxShadow = 'none'; }, 3000);
 }
 
 // ============ VIEW SWITCHING ============
@@ -2883,49 +2937,27 @@ function switchView(view) {
   document.getElementById('genesisView').classList.toggle('active', view === 'genesis');
 }
 
-// ============ QUICK SEARCH ============
 function quickSearch() {
   const q = document.getElementById('globalSearch').value.toUpperCase().trim();
   if (!q) return;
-  if (ASSETS[q]) {
-    switchView('trader');
-    selectAsset(q);
-    return;
-  }
+  if (ASSETS[q]) { switchView('trader'); selectAsset(q); return; }
   for (const t of Object.keys(ASSETS)) {
     if (ASSETS[t].name.toUpperCase().includes(q) || t.includes(q)) {
-      switchView('trader');
-      selectAsset(t);
-      return;
+      switchView('trader'); selectAsset(t); return;
     }
   }
 }
 
-// ============ UTILITY FUNCTIONS ============
-function fmtPrice(price) {
-  return price < 0.01 ? price.toFixed(4) : price.toFixed(2);
-}
-
-function fmtDecimals(price) {
-  return price < 0.01 ? 6 : 4;
-}
-
-function abbrevNum(num) {
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-  return num.toString();
-}
-
-// ============ CLOCK ============
-function updateClock() {
-  document.getElementById('clockDisplay').textContent =
-    new Date().toLocaleTimeString('en-US', { hour12: false }) + ' UTC';
-}
+// ============ UTILITIES ============
+function fmtPrice(price) { return price < 0.01 ? price.toFixed(4) : price.toFixed(2); }
+function fmtDecimals(price) { return price < 0.01 ? 6 : 4; }
+function abbrevNum(num) { return num >= 1000 ? (num / 1000).toFixed(1) + 'K' : num.toString(); }
+function updateClock() { document.getElementById('clockDisplay').textContent = new Date().toLocaleTimeString('en-US', { hour12: false }) + ' UTC'; }
 
 // ============ KEYBOARD SHORTCUTS ============
 document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement !== document.getElementById('globalSearch')) {
-    e.preventDefault();
-    document.getElementById('globalSearch').focus();
+    e.preventDefault(); document.getElementById('globalSearch').focus();
   }
   if (e.ctrlKey || e.metaKey) {
     if (e.key === 'k') { e.preventDefault(); document.getElementById('globalSearch').focus(); }
@@ -2940,15 +2972,13 @@ document.addEventListener('keydown', e => {
 // ============ INITIALIZATION ============
 buildWatchlist();
 buildMovers();
+buildPriceTicker();
 selectAsset('PEPE');
 updateTicketTotal();
 updateClock();
-
 setInterval(updateClock, 1000);
 setInterval(simulateTick, 2200);
 setInterval(updateAuction, 1000);
-
-// Initially set portfolio view to hidden
 document.getElementById('portfolioView').classList.remove('active');
 document.getElementById('genesisView').classList.remove('active');
 </script>
