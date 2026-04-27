@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MEMEX PRO — Meme Market Exchange</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;--bg2:#111;--bg3:#181818;--bg4:#222;
+  --border:#2a2a2a;--border2:#333;
+  --green:#00ff88;--red:#ff3366;--amber:#ffb800;--cyan:#00d4ff;--purple:#9d6fff;
+  --text:#e8e8e8;--text2:#888;--text3:#555;
+  --mono:'IBM Plex Mono',monospace;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:12px;overflow:hidden}
+.terminal{display:grid;grid-template-rows:40px 1fr 28px;height:100vh}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:16px}
+.logo{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--green);letter-spacing:2px}
+.logo span{color:var(--text3)}
+.search-box{background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:4px 10px;font-family:var(--mono);font-size:11px;width:160px;outline:none}
+.search-box:focus{border-color:var(--green)}
+.nav-tabs{display:flex;margin-left:auto}
+.nav-tab{padding:0 14px;height:40px;display:flex;align-items:center;font-size:11px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;letter-spacing:0.5px}
+.nav-tab.active{color:var(--green);border-bottom-color:var(--green)}
+.nav-tab:hover{color:var(--text);background:var(--bg3)}
+.status-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.time-display{font-size:11px;color:var(--text2)}
+.main{display:grid;grid-template-columns:170px 1fr 210px;overflow:hidden}
+.watchlist{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+.panel-header{padding:6px 10px;border-bottom:1px solid var(--border);font-size:10px;color:var(--text3);letter-spacing:1px;display:flex;align-items:center;justify-content:space-between}
+.badge{background:var(--bg4);color:var(--text3);padding:1px 5px;font-size:9px}
+.watch-item{padding:6px 10px;border-bottom:1px solid var(--border);cursor:pointer;display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;transition:background 0.1s}
+.watch-item:hover,.watch-item.active{background:var(--bg3)}
+.watch-item.active{border-left:2px solid var(--green)}
+.meme-avatar{width:32px;height:32px;flex-shrink:0}
+.watch-info{min-width:0}
+.watch-ticker{font-size:11px;font-weight:600;letter-spacing:0.5px}
+.watch-name{font-size:9px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.watch-price-col{text-align:right}
+.watch-price{font-size:11px}
+.watch-change{font-size:9px;text-align:right;margin-top:1px}
+.up{color:var(--green)}.down{color:var(--red)}.flat{color:var(--text2)}
+.tier-label{padding:4px 10px;background:var(--bg);font-size:9px;color:var(--text3);letter-spacing:1px;border-bottom:1px solid var(--border)}
+.movers-section{margin-top:auto;border-top:1px solid var(--border)}
+.mover-row{padding:4px 10px;display:flex;justify-content:space-between;align-items:center}
+.mover-name{font-size:10px;color:var(--text2)}
+.mover-pct{font-size:10px;font-weight:600}
+.center{display:grid;grid-template-rows:auto 1fr auto;overflow:hidden}
+.asset-header{padding:7px 14px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.asset-avatar{width:36px;height:36px}
+.asset-ticker{font-family:'Space Mono',monospace;font-size:15px;font-weight:700}
+.asset-name{font-size:10px;color:var(--text2);flex:1}
+.asset-price{font-family:'Space Mono',monospace;font-size:15px;font-weight:700}
+.asset-change-big{font-size:11px;padding:2px 7px}
+.asset-tier{font-size:9px;color:var(--amber);border:1px solid var(--amber);padding:1px 5px;letter-spacing:0.5px}
+.timeframe-tabs{display:flex;padding:5px 14px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.tf-tab{padding:2px 8px;font-size:10px;color:var(--text2);cursor:pointer;border:1px solid transparent}
+.tf-tab.active{color:var(--cyan);border-color:var(--cyan)}
+.tf-tab:hover{color:var(--text)}
+.chart-canvas-wrap{position:relative;height:220px;padding:8px 14px;background:var(--bg)}
+.order-flow{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--border);overflow:hidden}
+.divider-line{border-right:1px solid var(--border)}
+.ob-header-row{display:grid;grid-template-columns:1fr 1fr;padding:5px 10px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.ob-col-label{font-size:9px;color:var(--text3);letter-spacing:0.5px}
+.ob-col-label:last-child{text-align:right}
+.ob-row{display:grid;grid-template-columns:1fr 1fr;padding:3px 10px;position:relative;cursor:default}
+.ob-bar{position:absolute;top:0;bottom:0;opacity:0.15;pointer-events:none}
+.ob-bar.ask{background:var(--red);right:0}
+.ob-bar.bid{background:var(--green);left:0}
+.ob-price{font-size:10px;font-weight:600}
+.ob-size{font-size:10px;color:var(--text2);text-align:right}
+.spread-row{background:var(--bg3);padding:3px 10px;text-align:center;font-size:9px;color:var(--text3)}
+.trades-tape{padding:4px 0;overflow-y:auto;max-height:140px}
+.trade-row{display:grid;grid-template-columns:1fr 1fr 1fr;padding:2px 10px;font-size:10px}
+.trade-row:hover{background:var(--bg3)}
+.trade-time{color:var(--text3)}
+.trade-price{font-weight:600}
+.trade-size{text-align:right;color:var(--text2)}
+.ticket-area{background:var(--bg2);border-top:1px solid var(--border);padding:9px 12px}
+.ticket-tabs{display:flex;margin-bottom:7px}
+.ticket-tab{flex:1;padding:5px;text-align:center;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border2)}
+.ticket-tab.buy-tab{color:var(--green)}
+.ticket-tab.sell-tab{color:var(--red)}
+.ticket-tab.buy-tab.active{background:var(--green);color:#000;border-color:var(--green)}
+.ticket-tab.sell-tab.active{background:var(--red);color:#fff;border-color:var(--red)}
+.ticket-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.ticket-label{font-size:10px;color:var(--text2)}
+.ticket-input{background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:3px 7px;font-family:var(--mono);font-size:11px;width:90px;outline:none;text-align:right}
+.ticket-input:focus{border-color:var(--cyan)}
+.ticket-total{font-size:11px;font-weight:600;color:var(--amber)}
+.ticket-submit{width:100%;padding:6px;font-family:var(--mono);font-size:11px;font-weight:700;cursor:pointer;border:none;letter-spacing:1px;margin-top:5px;transition:opacity 0.15s}
+.ticket-submit:hover{opacity:0.85}
+.ticket-submit.buy{background:var(--green);color:#000}
+.ticket-submit.sell{background:var(--red);color:#fff}
+.order-type-row{display:flex;gap:4px;margin-bottom:7px}
+.order-type-btn{flex:1;padding:2px;font-size:9px;cursor:pointer;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);text-align:center;font-family:var(--mono)}
+.order-type-btn.active{border-color:var(--cyan);color:var(--cyan);background:var(--bg4)}
+.micro-copy{font-size:9px;color:var(--text3);text-align:center;margin-top:3px;font-style:italic}
+.right-panel{background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+.prov-hash{font-size:9px;color:var(--cyan);word-break:break-all;margin-top:4px}
+.prov-row{display:flex;justify-content:space-between;margin-top:5px}
+.prov-key{font-size:9px;color:var(--text3)}
+.prov-val{font-size:9px;color:var(--text)}
+.verified-badge{display:flex;align-items:center;gap:4px;margin-top:6px;background:var(--bg3);padding:4px 8px}
+.verified-dot{width:6px;height:6px;background:var(--green);border-radius:50%}
+.verified-text{font-size:9px;color:var(--green);letter-spacing:0.5px}
+.scarcity-bar-bg{background:var(--bg4);height:6px;margin-top:6px}
+.scarcity-bar-fill{height:100%;background:var(--amber)}
+.scarcity-label{display:flex;justify-content:space-between;margin-top:3px}
+.scarcity-pct{font-size:9px;color:var(--amber)}
+.scarcity-note{font-size:9px;color:var(--text3)}
+.ancestry-item{display:flex;align-items:flex-start;gap:6px;padding:3px 0}
+.ancestry-line{display:flex;flex-direction:column;align-items:center}
+.ancestry-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.ancestry-connector{width:1px;flex:1;background:var(--border2);min-height:10px}
+.ancestry-text{font-size:9px}
+.ancestry-year{color:var(--text3)}
+.ancestry-name{color:var(--text)}
+.acc-item{padding:4px 8px;background:var(--bg3);border:1px solid var(--border);margin-bottom:3px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:border-color 0.1s}
+.acc-item:hover{border-color:var(--purple)}
+.acc-type{font-size:9px;color:var(--purple)}
+.acc-name{font-size:9px;color:var(--text)}
+.acc-yield{font-size:9px;color:var(--green)}
+.news-tape{background:var(--bg2);border-top:1px solid var(--border);display:flex;align-items:center;overflow:hidden}
+.tape-label{padding:0 10px;font-size:9px;color:var(--amber);letter-spacing:1px;white-space:nowrap;border-right:1px solid var(--border);height:100%;display:flex;align-items:center}
+.tape-scroll{overflow:hidden;flex:1}
+.tape-inner{white-space:nowrap;display:inline-block;animation:scroll-tape 50s linear infinite;font-size:10px;color:var(--text2);padding:0 20px}
+@keyframes scroll-tape{0%{transform:translateX(100%)}100%{transform:translateX(-200%)}}
+.tape-item{margin-right:40px}
+.tape-item .ticker{color:var(--cyan);font-weight:600}
+.tape-item .action{color:var(--text3);margin:0 4px}
+.port-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.port-stat{background:var(--bg3);border:1px solid var(--border);padding:10px 12px}
+.port-stat-label{font-size:9px;color:var(--text3);letter-spacing:0.5px}
+.port-stat-val{font-size:18px;font-weight:700;font-family:'Space Mono',monospace;margin-top:4px}
+.port-stat-sub{font-size:10px;color:var(--text2);margin-top:2px}
+.holdings-table{width:100%;border-collapse:collapse}
+.holdings-table th{font-size:9px;color:var(--text3);letter-spacing:0.5px;padding:5px 10px;border-bottom:1px solid var(--border);text-align:left}
+.holdings-table td{padding:5px 10px;font-size:11px;border-bottom:1px solid var(--border)}
+.holdings-table tr:hover td{background:var(--bg3)}
+.acc-rights{margin-top:14px}
+.acc-right-row{display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center;padding:5px 10px;border-bottom:1px solid var(--border);font-size:10px}
+.acc-right-row:hover{background:var(--bg3)}
+.acc-badge{font-size:8px;padding:1px 6px}
+.acc-badge.active{background:rgba(0,255,136,0.1);color:var(--green);border:1px solid var(--green)}
+.acc-badge.expiring{background:rgba(255,184,0,0.1);color:var(--amber);border:1px solid var(--amber)}
+.hidden{display:none!important}
+canvas{width:100%!important}
+</style>
+</head>
+<body>
+<div class="terminal">
+  <div class="topbar">
+    <div class="logo">MEMEX<span>PRO</span></div>
+    <div class="status-dot"></div>
+    <input class="search-box" placeholder="Search ticker / meme..." type="text" />
+    <div class="nav-tabs">
+      <div class="nav-tab active" onclick="switchTab('trader')">TRADER</div>
+      <div class="nav-tab" onclick="switchTab('portfolio')">PORTFOLIO</div>
+      <div class="nav-tab" onclick="switchTab('genesis')">GENESIS</div>
+    </div>
+    <div class="time-display" id="clock"></div>
+  </div>
+
+  <div class="main" id="trader-view">
+    <div class="watchlist">
+      <div class="panel-header">WATCHLIST <span class="badge">LIVE</span></div>
+      <div class="tier-label">TIER 1 · ARCHETYPE</div>
+      <div class="watch-item active" onclick="selectAsset('PEPE',this)">
+        <svg class="meme-avatar" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#78c840" stroke="#4a8a20" stroke-width="1.5"/><ellipse cx="20" cy="22" rx="13" ry="11" fill="#5aab2a"/><circle cx="14" cy="16" r="4" fill="white"/><circle cx="26" cy="16" r="4" fill="white"/><circle cx="14" cy="17" r="2" fill="#1a1a1a"/><circle cx="26" cy="17" r="2" fill="#1a1a1a"/><path d="M13 27 Q20 33 27 27" stroke="#2a6a10" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="20" cy="31" rx="5" ry="3" fill="#ff9999" opacity="0.6"/></svg>
+        <div class="watch-info"><div class="watch-ticker up">PEPE</div><div class="watch-name">Rare Pepe Classic</div></div>
+        <div class="watch-price-col"><div class="watch-price up" id="w-PEPE-price">0.0069</div><div class="watch-change up">+8.2%</div></div>
+      </div>
+      <div class="watch-item" onclick="selectAsset('RROL',this)">
+        <svg class="meme-avatar" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#c0392b" stroke="#922b21" stroke-width="1.5"/><rect x="8" y="14" width="24" height="16" rx="2" fill="#2c3e50"/><path d="M14 14 L20 10 L26 14" fill="#e74c3c"/><circle cx="20" cy="22" r="5" fill="#f39c12"/><circle cx="20" cy="22" r="3" fill="#e67e22"/><circle cx="20" cy="22" r="1.5" fill="#2c3e50"/></svg>
+        <div class="watch-info"><div class="watch-ticker up">RROL</div><div class="watch-name">Original RickRoll</div></div>
+        <div class="watch-price-col"><div class="watch-price up" id="w-RROL-price">4.20</div><div class="watch-change up">+12.4%</div></div>
+      </div>
+      <div class="watch-item" onclick="selectAsset('DOGE',this)">
+        <svg class="meme-avatar" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#c8a97e" stroke="#9a7d5a" stroke-width="1.5"/><ellipse cx="20" cy="22" rx="12" ry="11" fill="#d4b896"/><circle cx="15" cy="17" r="3.5" fill="white"/><circle cx="25" cy="17" r="3.5" fill="white"/><circle cx="15" cy="18" r="2" fill="#3d2b1a"/><circle cx="25" cy="18" r="2" fill="#3d2b1a"/><circle cx="16" cy="17" r="0.8" fill="white"/><circle cx="26" cy="17" r="0.8" fill="white"/><ellipse cx="20" cy="25" rx="4" ry="2.5" fill="#e8c4a0"/><path d="M17 28 Q20 31 23 28" stroke="#9a7d5a" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M20 28 L20 32" stroke="#ff9999" stroke-width="2" stroke-linecap="round"/></svg>
+        <div class="watch-info"><div class="watch-ticker up">DOGE</div><div class="watch-name">Such Doge Wow</div></div>
+        <div class="watch-price-col"><div class="watch-price up" id="w-DOGE-price">0.42</div><div class="watch-change up">+3.1%</div></div>
+      </div>
+      <div class="watch-item" onclick="selectAsset('NYAN',this)">
+        <svg class="meme-avatar" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#1a1a2e" stroke="#16213e" stroke-width="1.5"/><rect x="10" y="14" width="20" height="14" rx="3" fill="#c8a0c8"/><rect x="12" y="16" width="3" height="4" rx="1" fill="#a04080"/><rect x="17" y="16" width="3" height="4" rx="1" fill="#a04080"/><circle cx="15" cy="14" r="2" fill="#c8a0c8"/><circle cx="25" cy="14" r="2" fill="#c8a0c8"/><circle cx="16" cy="20" r="1.5" fill="#ff6688"/><circle cx="24" cy="20" r="1.5" fill="#ff6688"/><path d="M18 24 Q20 26 22 24" stroke="#804060" stroke-width="1.5" fill="none"/><path d="M5 18 L10 18M5 21 L10 21M5 24 L10 24" stroke="#ff4488" stroke-width="2" stroke-linecap="round"/><path d="M5 18 L10 18M5 21 L10 21M5 24 L10 24" stroke="#ff8800" stroke-width="2" stroke-linecap="round" transform="translate(2,-2)"/></svg>
+        <div class="watch-info"><div class="watch-ticker up">NYAN</div><div class="watch-name">Nyan Cat 2011</div></div>
+        <div class="watch-price-col"><div class="watch-price up" id="w-NYAN-price">6.66</div><div class="watch-change up">+4.2%</div></div>
+      </div>
+      <div class="tier-label">TIER 2 · PROTO-MEME</div>
+      <div class="watch-item" onclick="selectAsset('WOJAK',this)">
+        <svg class="meme-avatar" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#e8d5b0" stroke="#c8b090" stroke-width="1.5"/><ellipse cx="20" cy="22" rx="12" ry="13" fill="#f0dcb8"/><circle cx="14" cy="18" r="3" fill="white"/><circle cx="26" cy="18" r="3" fill="white"/><circle cx="14.5" cy="18.5" r="1.8" fill="#3a2a1a"/><circle cx="26.5" cy="18.5" r="1.8" fill="#3a2a1a"/><path d="M15 26 Q20 30 25 26" stroke="#c8a080" stroke-width="1.5" fill="none"/><path d="M11 18 Q13 12 16 13" stroke="#c8b090" stroke-width="1" fill="none"/><path d="M29 18 Q27 12 24 13" stroke="#c8b090" stroke-width="1" fill="none"/><path d="M13 27 Q14 30 13 32M15 28 Q15 31 14 33" stroke="#88aaff" stroke-width="1" stroke-linecap="round" opacity="0.7"/></svg>
+        <div class="watch-info"><div class="watch-ticker down">WOJAK</div><div class="watch-name">Feels Bad Man</div></div>
+        <div class="watch-price-col"><div class="watch-price down" id="w-WOJAK-price">1.99</div><div class="watch-change down">-5.4%</div></div>
+      </div>
+      <div class="watch-item" onclick="selectAsset('CHAD',this)">
+        <svg class="meme-avatar" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="1.5"/><rect x="10" y="10" width="20" height="22" rx="4" fill="#d4c4b0"/><rect x="8" y="22" width="24" height="10" rx="3" fill="#c0b0a0"/><circle cx="15" cy="18" r="2.5" fill="white"/><circle cx="25" cy="18" r="2.5" fill="white"/><circle cx="15" cy="18" r="1.5" fill="#2a2a2a"/><circle cx="25" cy="18" r="1.5" fill="#2a2a2a"/><rect x="13" y="12" width="14" height="4" rx="1" fill="#8a7a6a"/><path d="M15 24 L25 24" stroke="#8a7a6a" stroke-width="2.5" stroke-linecap="round"/><rect x="12" y="10" width="16" height="6" rx="3" fill="#6a5a4a"/></svg>
+        <div class="watch-info"><div class="watch-ticker up">CHAD</div><div class="watch-name">Virgin vs Chad</div></div>
+        <div class="watch-price-col"><div class="watch-price up" id="w-CHAD-price">3.14</div><div class="watch-change up">+6.9%</div></div>
+      </div>
+      <div class="watch-item" onclick="selectAsset('FPNC',this)">
+        <svg class="meme-avatar" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#2266aa" stroke="#1a4a88" stroke-width="1.5"/><ellipse cx="20" cy="26" rx="11" ry="9" fill="#334477"/><ellipse cx="20" cy="20" rx="8" ry="10" fill="#3399cc"/><circle cx="15" cy="18" r="2.5" fill="white"/><circle cx="25" cy="18" r="2.5" fill="white"/><circle cx="15.5" cy="18.5" r="1.5" fill="#1a1a1a"/><circle cx="25.5" cy="18.5" r="1.5" fill="#1a1a1a"/><path d="M15 24 Q20 28 25 24" stroke="#1a4a88" stroke-width="1.5" fill="none"/><ellipse cx="20" cy="30" rx="7" ry="4" fill="#2255aa"/></svg>
+        <div class="watch-info"><div class="watch-ticker up">FPNC</div><div class="watch-name">FatPenguin NonCorp</div></div>
+        <div class="watch-price-col"><div class="watch-price up" id="w-FPNC-price">1.08</div><div class="watch-change up">+0.9%</div></div>
+      </div>
+      <div class="watch-item" onclick="selectAsset('HAMST',this)">
+        <svg class="meme-avatar" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#d4a060" stroke="#b08040" stroke-width="1.5"/><ellipse cx="20" cy="23" rx="13" ry="12" fill="#e8b878"/><ellipse cx="10" cy="22" rx="5" ry="6" fill="#e8b878"/><ellipse cx="30" cy="22" rx="5" ry="6" fill="#e8b878"/><circle cx="15" cy="18" r="3" fill="white"/><circle cx="25" cy="18" r="3" fill="white"/><circle cx="15.5" cy="18.5" r="1.8" fill="#2a1a0a"/><circle cx="25.5" cy="18.5" r="1.8" fill="#2a1a0a"/><ellipse cx="20" cy="24" rx="4" ry="2.5" fill="#f0c090"/><circle cx="20" cy="25" r="1.5" fill="#cc7766"/><path d="M17 27 Q20 30 23 27" stroke="#b08040" stroke-width="1.5" fill="none"/></svg>
+        <div class="watch-info"><div class="watch-ticker down">HAMST</div><div class="watch-name">Hamster Dance OG</div></div>
+        <div class="watch-price-col"><div class="watch-price down" id="w-HAMST-price">0.33</div><div class="watch-change down">-2.4%</div></div>
+      </div>
+      <div class="watch-item" onclick="selectAsset('LOSS',this)">
+        <svg class="meme-avatar" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#444" stroke="#333" stroke-width="1.5"/><line x1="10" y1="10" x2="10" y2="30" stroke="white" stroke-width="2"/><line x1="10" y1="10" x2="20" y2="13" stroke="white" stroke-width="2"/><line x1="10" y1="20" x2="18" y2="23" stroke="white" stroke-width="2"/><circle cx="27" cy="15" r="5" fill="none" stroke="white" stroke-width="2"/><line x1="27" y1="21" x2="27" y2="30" stroke="white" stroke-width="2"/><line x1="22" y1="25" x2="32" y2="25" stroke="white" stroke-width="2"/></svg>
+        <div class="watch-info"><div class="watch-ticker flat">LOSS</div><div class="watch-name">Loss.jpg Ctrl+Alt</div></div>
+        <div class="watch-price-col"><div class="watch-price flat" id="w-LOSS-price">2.11</div><div class="watch-change flat">+0.0%</div></div>
+      </div>
+      <div class="movers-section">
+        <div class="panel-header">TOP MOVERS</div>
+        <div class="mover-row"><span class="mover-name">▲ RROL</span><span class="mover-pct up">+12.4%</span></div>
+        <div class="mover-row"><span class="mover-name">▲ CHAD</span><span class="mover-pct up">+6.9%</span></div>
+        <div class="mover-row"><span class="mover-name">▼ WOJAK</span><span class="mover-pct down">-5.4%</span></div>
+        <div class="mover-row"><span class="mover-name">▲ PEPE</span><span class="mover-pct up">+8.2%</span></div>
+      </div>
+    </div>
+
+    <div class="center">
+      <div>
+        <div class="asset-header">
+          <svg class="asset-avatar" viewBox="0 0 40 40" id="hdr-avatar"><circle cx="20" cy="20" r="19" fill="#78c840" stroke="#4a8a20" stroke-width="1.5"/><ellipse cx="20" cy="22" rx="13" ry="11" fill="#5aab2a"/><circle cx="14" cy="16" r="4" fill="white"/><circle cx="26" cy="16" r="4" fill="white"/><circle cx="14" cy="17" r="2" fill="#1a1a1a"/><circle cx="26" cy="17" r="2" fill="#1a1a1a"/><path d="M13 27 Q20 33 27 27" stroke="#2a6a10" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="20" cy="31" rx="5" ry="3" fill="#ff9999" opacity="0.6"/></svg>
+          <div>
+            <div class="asset-ticker up" id="hdr-ticker">PEPE</div>
+            <div class="asset-name" id="hdr-name">Rare Pepe Classic · Matt Furie 2005</div>
+          </div>
+          <div class="asset-price up" id="hdr-price">0.0069</div>
+          <div class="asset-change-big up" id="hdr-change">▲ +8.2%</div>
+          <div class="asset-tier" id="hdr-tier">ARCHETYPE</div>
+        </div>
+        <div class="timeframe-tabs">
+          <div class="tf-tab active" onclick="setTF(this)">1H</div>
+          <div class="tf-tab" onclick="setTF(this)">4H</div>
+          <div class="tf-tab" onclick="setTF(this)">1D</div>
+          <div class="tf-tab" onclick="setTF(this)">1W</div>
+          <div class="tf-tab" onclick="setTF(this)">1M</div>
+          <div class="tf-tab" onclick="setTF(this)">1 VIBE</div>
+        </div>
+        <div class="chart-canvas-wrap">
+          <canvas id="mainChart" role="img" aria-label="Price chart"></canvas>
+        </div>
+      </div>
+      <div>
+        <div class="panel-header" style="padding:5px 10px">ORDER BOOK &amp; TRADES</div>
+        <div class="order-flow">
+          <div class="divider-line">
+            <div class="ob-header-row"><span class="ob-col-label">PRICE (USDC)</span><span class="ob-col-label">SIZE</span></div>
+            <div id="ask-rows"></div>
+            <div class="spread-row">SPREAD · <span id="spread-val">0.0001 USDC</span></div>
+            <div id="bid-rows"></div>
+          </div>
+          <div>
+            <div class="ob-header-row"><span class="ob-col-label">PRICE</span><span class="ob-col-label">LAST TRADES</span></div>
+            <div class="trades-tape" id="trades-tape"></div>
+          </div>
+        </div>
+      </div>
+      <div class="ticket-area">
+        <div class="ticket-tabs">
+          <div class="ticket-tab buy-tab active" onclick="setTicketSide('buy')">BUY</div>
+          <div class="ticket-tab sell-tab" onclick="setTicketSide('sell')">SELL</div>
+        </div>
+        <div class="order-type-row">
+          <div class="order-type-btn active" onclick="setOT(this)">LIMIT</div>
+          <div class="order-type-btn" onclick="setOT(this)">MARKET</div>
+          <div class="order-type-btn" onclick="setOT(this)">STOP</div>
+          <div class="order-type-btn" onclick="setOT(this)">VICKREY</div>
+        </div>
+        <div class="ticket-row"><span class="ticket-label">PRICE (USDC)</span><input class="ticket-input" id="t-price" value="0.0069" oninput="updateTotal()" /></div>
+        <div class="ticket-row"><span class="ticket-label">QTY (CDMR)</span><input class="ticket-input" id="t-qty" value="10000" oninput="updateTotal()" /></div>
+        <div class="ticket-row"><span class="ticket-label">TOTAL</span><span class="ticket-total" id="t-total">69.00 USDC</span></div>
+        <button class="ticket-submit buy" id="t-submit" onclick="placeOrder()">▶ PLACE BUY ORDER</button>
+        <div class="micro-copy" id="t-copy">Rare. Provably scarce. Feels good man.</div>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="panel-header">MEME PROVENANCE</div>
+      <div style="padding:10px;border-bottom:1px solid var(--border)">
+        <div class="prov-row"><span class="prov-key">TICKER</span><span class="prov-val" id="prov-ticker">PEPE</span></div>
+        <div class="prov-row"><span class="prov-key">VINTAGE</span><span class="prov-val" id="prov-vintage">2005</span></div>
+        <div class="prov-row"><span class="prov-key">CDMR SUPPLY</span><span class="prov-val" id="prov-supply">6,969 FIXED</span></div>
+        <div class="prov-row"><span class="prov-key">ROYALTY</span><span class="prov-val" id="prov-royalty">5% on resale</span></div>
+        <div class="prov-row"><span class="prov-key">CUSTODIAN</span><span class="prov-val">mDTC VAULT #001</span></div>
+        <div class="prov-row"><span class="prov-key">GENESIS HASH</span></div>
+        <div class="prov-hash" id="prov-hash">0x9f2c4a1b7d3e8a6c...2d4a</div>
+        <div class="verified-badge"><div class="verified-dot"></div><span class="verified-text">VERIFIED BY mDTC · T+0 ATOMIC SETTLE</span></div>
+      </div>
+      <div style="padding:10px;border-bottom:1px solid var(--border)">
+        <div class="panel-header" style="padding:0 0 5px;border:none">SCARCITY INDEX</div>
+        <div class="scarcity-bar-bg"><div class="scarcity-bar-fill" id="scarcity-fill" style="width:94%"></div></div>
+        <div class="scarcity-label"><span class="scarcity-pct" id="scarcity-pct">94% TOP-10</span><span class="scarcity-note" id="scarcity-note">ULTRA-RARE</span></div>
+      </div>
+      <div style="padding:10px;border-bottom:1px solid var(--border);flex:1;overflow-y:auto">
+        <div class="panel-header" style="padding:0 0 5px;border:none">MEME ANCESTRY</div>
+        <div id="ancestry-tree"></div>
+      </div>
+      <div style="padding:10px">
+        <div class="panel-header" style="padding:0 0 5px;border:none">DERIVATIVES</div>
+        <div id="accessories-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:none;overflow:auto;height:100%" id="portfolio-view">
+    <div style="padding:14px">
+      <div class="port-grid">
+        <div class="port-stat"><div class="port-stat-label">TOTAL VALUE</div><div class="port-stat-val up">69,420</div><div class="port-stat-sub">USDC · ▲ 12.4% 24H</div></div>
+        <div class="port-stat"><div class="port-stat-label">UNREALISED P&L</div><div class="port-stat-val up">+8,234</div><div class="port-stat-sub">USDC ALL TIME</div></div>
+        <div class="port-stat"><div class="port-stat-label">ROYALTY INCOME</div><div class="port-stat-val" style="color:var(--purple)">412</div><div class="port-stat-sub">USDC THIS MONTH</div></div>
+        <div class="port-stat"><div class="port-stat-label">MEME DIVERSITY</div><div class="port-stat-val" style="color:var(--amber)">9</div><div class="port-stat-sub">ASSETS HELD</div></div>
+      </div>
+      <div class="panel-header" style="padding:0 0 8px">HOLDINGS</div>
+      <table class="holdings-table">
+        <thead><tr><th>ASSET</th><th>QTY</th><th>PRICE</th><th>VALUE</th><th>P&L</th><th>ALLOC %</th></tr></thead>
+        <tbody>
+          <tr><td><span class="up" style="font-weight:600">PEPE</span><br><span style="font-size:9px;color:var(--text3)">Rare Pepe Classic</span></td><td>10,000</td><td class="up">0.0069</td><td>69.00</td><td class="up">+21.00</td><td>1%</td></tr>
+          <tr><td><span class="up" style="font-weight:600">RROL</span><br><span style="font-size:9px;color:var(--text3)">Original RickRoll</span></td><td>500</td><td class="up">4.20</td><td>2,100</td><td class="up">+420</td><td>30%</td></tr>
+          <tr><td><span class="up" style="font-weight:600">CHAD</span><br><span style="font-size:9px;color:var(--text3)">Virgin vs Chad</span></td><td>1,000</td><td class="up">3.14</td><td>3,140</td><td class="up">+614</td><td>45%</td></tr>
+          <tr><td><span class="down" style="font-weight:600">WOJAK</span><br><span style="font-size:9px;color:var(--text3)">Feels Bad Man</span></td><td>2,000</td><td class="down">1.99</td><td>3,980</td><td class="down">-420</td><td>57%</td></tr>
+          <tr><td><span class="up" style="font-weight:600">NYAN</span><br><span style="font-size:9px;color:var(--text3)">Nyan Cat 2011</span></td><td>200</td><td class="up">6.66</td><td>1,332</td><td class="up">+332</td><td>19%</td></tr>
+          <tr><td><span class="up" style="font-weight:600">FPNC</span><br><span style="font-size:9px;color:var(--text3)">FatPenguin NonCorp</span></td><td>1,000</td><td class="up">1.08</td><td>1,080</td><td class="up">+80</td><td>15%</td></tr>
+        </tbody>
+      </table>
+      <div class="acc-rights">
+        <div class="panel-header" style="padding:8px 0 6px">ACCESSORY RIGHTS (DERIVATIVES)</div>
+        <div class="acc-right-row" style="font-size:9px;color:var(--text3);padding:4px 10px"><span>INSTRUMENT</span><span>STATUS</span><span>STREAM</span><span>EXPIRY</span></div>
+        <div class="acc-right-row"><span style="color:var(--purple)">REMIX-PEPE-001</span><span class="acc-badge active">ACTIVE</span><span class="up">5% royalty</span><span class="flat">PERPETUAL</span></div>
+        <div class="acc-right-row"><span style="color:var(--purple)">REMIX-RROL-042</span><span class="acc-badge active">ACTIVE</span><span class="up">3% royalty</span><span class="flat">PERPETUAL</span></div>
+        <div class="acc-right-row"><span style="color:var(--purple)">REACT-WOJAK-128</span><span class="acc-badge active">ACTIVE</span><span class="up">0.5% pool</span><span class="flat">PERPETUAL</span></div>
+        <div class="acc-right-row"><span style="color:var(--amber)">VVIX-RROL-JUN26</span><span class="acc-badge expiring">EXPIRING</span><span style="color:var(--amber)">STRIKE 5.00</span><span class="down">JUN 2026</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:none;overflow:auto;height:100%" id="genesis-view">
+    <div style="padding:20px;max-width:600px;margin:0 auto">
+      <div style="font-family:'Space Mono',monospace;font-size:14px;color:var(--amber);letter-spacing:2px;margin-bottom:16px">RROL RETROSPECTIVE GENESIS AUCTION</div>
+      <div style="font-size:10px;color:var(--text2);line-height:1.8;margin-bottom:16px">Genesis Collection · Vickrey Sealed-Bid · Second-Price Mechanism · FPNC Holder Priority</div>
+      <div style="background:var(--bg3);border:1px solid var(--amber);padding:14px;margin-bottom:12px">
+        <div style="font-size:9px;color:var(--amber);letter-spacing:1px;margin-bottom:8px">LOT #001 · RROL GENESIS CDMR</div>
+        <div style="font-size:11px;color:var(--text);margin-bottom:4px;line-height:1.7">Cryptographic seal of the original RickRoll — April 1, 2006 YouTube context. Proof-of-attendance token from the ancient internet.</div>
+        <div style="font-size:9px;color:var(--text3);margin-top:8px">Reserve: 1,000 USDC · Allocation: 500 CDMRs · FPNC holders: Priority access guaranteed</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div class="port-stat"><div class="port-stat-label">TIME LEFT</div><div class="port-stat-val" style="color:var(--red)" id="auction-timer">47:22:14</div><div class="port-stat-sub">AUCTION CLOSES</div></div>
+        <div class="port-stat"><div class="port-stat-label">BIDS PLACED</div><div class="port-stat-val" style="color:var(--amber)">247</div><div class="port-stat-sub">SEALED · VICKREY</div></div>
+      </div>
+      <div style="margin-bottom:8px;font-size:10px;color:var(--text2)">YOUR SEALED BID (USDC)</div>
+      <div style="display:flex;gap:8px">
+        <input class="ticket-input" value="1250" style="width:auto;flex:1;font-size:14px;padding:8px" />
+        <button class="ticket-submit buy" style="width:auto;padding:8px 20px" onclick="this.textContent='✓ BID SEALED'">SUBMIT BID</button>
+      </div>
+      <div style="font-size:9px;color:var(--text3);margin-top:8px">Second-price: you pay second-highest bid if you win. Reveal your true valuation.</div>
+    </div>
+  </div>
+
+  <div class="news-tape">
+    <div class="tape-label">▶ MEMEX WIRE</div>
+    <div class="tape-scroll">
+      <div class="tape-inner">
+        <span class="tape-item"><span class="ticker">PEPE</span><span class="action">·</span> Rare Pepe #4410 sells for 100K USDC — new Archetype index all-time high</span>
+        <span class="tape-item"><span class="ticker">WOJAK</span><span class="action">·</span> Feels bad man — WOJAK dumps 5.4% on Distracted Boyfriend correlation break</span>
+        <span class="tape-item"><span class="ticker">RROL</span><span class="action">·</span> Genesis hash verified by mDTC auditors — T+0 atomic settlement confirmed</span>
+        <span class="tape-item"><span class="ticker">CHAD</span><span class="action">·</span> Virgin vs Chad meme suitability panel approves CDMR issuance — 3,141 supply fixed</span>
+        <span class="tape-item"><span class="ticker">NYAN</span><span class="action">·</span> 2011 original GIF authenticated — dithering pattern matches Wayback Machine archive</span>
+        <span class="tape-item"><span class="ticker">FPNC</span><span class="action">·</span> FPNC holders granted Genesis Auction priority — KYC deadline 72h remaining</span>
+        <span class="tape-item"><span class="ticker">MEME SUITABILITY PANEL</span><span class="action">·</span> ElonDogeFlokiCoin2 JPEG rejected — fails provenance standard MCS-001</span>
+        <span class="tape-item"><span class="ticker">VVIX-RROL-JUN26</span><span class="action">·</span> Viral Velocity Index spike — social mentions +840% — contract deep ITM</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const PEPE_SVG=`<circle cx="20" cy="20" r="19" fill="#78c840" stroke="#4a8a20" stroke-width="1.5"/><ellipse cx="20" cy="22" rx="13" ry="11" fill="#5aab2a"/><circle cx="14" cy="16" r="4" fill="white"/><circle cx="26" cy="16" r="4" fill="white"/><circle cx="14" cy="17" r="2" fill="#1a1a1a"/><circle cx="26" cy="17" r="2" fill="#1a1a1a"/><path d="M13 27 Q20 33 27 27" stroke="#2a6a10" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="20" cy="31" rx="5" ry="3" fill="#ff9999" opacity="0.6"/>`;
+const RROL_SVG=`<circle cx="20" cy="20" r="19" fill="#c0392b" stroke="#922b21" stroke-width="1.5"/><rect x="8" y="14" width="24" height="16" rx="2" fill="#2c3e50"/><path d="M14 14 L20 10 L26 14" fill="#e74c3c"/><circle cx="20" cy="22" r="5" fill="#f39c12"/><circle cx="20" cy="22" r="3" fill="#e67e22"/><circle cx="20" cy="22" r="1.5" fill="#2c3e50"/>`;
+const DOGE_SVG=`<circle cx="20" cy="20" r="19" fill="#c8a97e" stroke="#9a7d5a" stroke-width="1.5"/><ellipse cx="20" cy="22" rx="12" ry="11" fill="#d4b896"/><circle cx="15" cy="17" r="3.5" fill="white"/><circle cx="25" cy="17" r="3.5" fill="white"/><circle cx="15" cy="18" r="2" fill="#3d2b1a"/><circle cx="25" cy="18" r="2" fill="#3d2b1a"/><circle cx="16" cy="17" r="0.8" fill="white"/><circle cx="26" cy="17" r="0.8" fill="white"/><ellipse cx="20" cy="25" rx="4" ry="2.5" fill="#e8c4a0"/><path d="M17 28 Q20 31 23 28" stroke="#9a7d5a" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M20 28 L20 32" stroke="#ff9999" stroke-width="2" stroke-linecap="round"/>`;
+const NYAN_SVG=`<circle cx="20" cy="20" r="19" fill="#1a1a2e" stroke="#16213e" stroke-width="1.5"/><rect x="10" y="14" width="20" height="14" rx="3" fill="#c8a0c8"/><rect x="12" y="16" width="3" height="4" rx="1" fill="#a04080"/><rect x="17" y="16" width="3" height="4" rx="1" fill="#a04080"/><circle cx="15" cy="14" r="2" fill="#c8a0c8"/><circle cx="25" cy="14" r="2" fill="#c8a0c8"/><circle cx="16" cy="20" r="1.5" fill="#ff6688"/><circle cx="24" cy="20" r="1.5" fill="#ff6688"/><path d="M18 24 Q20 26 22 24" stroke="#804060" stroke-width="1.5" fill="none"/><path d="M5 18 L10 18M5 21 L10 21M5 24 L10 24" stroke="#ff4488" stroke-width="2" stroke-linecap="round"/>`;
+const WOJAK_SVG=`<circle cx="20" cy="20" r="19" fill="#e8d5b0" stroke="#c8b090" stroke-width="1.5"/><ellipse cx="20" cy="22" rx="12" ry="13" fill="#f0dcb8"/><circle cx="14" cy="18" r="3" fill="white"/><circle cx="26" cy="18" r="3" fill="white"/><circle cx="14.5" cy="18.5" r="1.8" fill="#3a2a1a"/><circle cx="26.5" cy="18.5" r="1.8" fill="#3a2a1a"/><path d="M15 26 Q20 30 25 26" stroke="#c8a080" stroke-width="1.5" fill="none"/><path d="M11 18 Q13 12 16 13" stroke="#c8b090" stroke-width="1" fill="none"/><path d="M29 18 Q27 12 24 13" stroke="#c8b090" stroke-width="1" fill="none"/><path d="M13 27 Q14 30 13 32M15 28 Q15 31 14 33" stroke="#88aaff" stroke-width="1" stroke-linecap="round" opacity="0.7"/>`;
+const CHAD_SVG=`<circle cx="20" cy="20" r="19" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="1.5"/><rect x="10" y="10" width="20" height="22" rx="4" fill="#d4c4b0"/><rect x="8" y="22" width="24" height="10" rx="3" fill="#c0b0a0"/><circle cx="15" cy="18" r="2.5" fill="white"/><circle cx="25" cy="18" r="2.5" fill="white"/><circle cx="15" cy="18" r="1.5" fill="#2a2a2a"/><circle cx="25" cy="18" r="1.5" fill="#2a2a2a"/><rect x="13" y="12" width="14" height="4" rx="1" fill="#8a7a6a"/><path d="M15 24 L25 24" stroke="#8a7a6a" stroke-width="2.5" stroke-linecap="round"/><rect x="12" y="10" width="16" height="6" rx="3" fill="#6a5a4a"/>`;
+const FPNC_SVG=`<circle cx="20" cy="20" r="19" fill="#2266aa" stroke="#1a4a88" stroke-width="1.5"/><ellipse cx="20" cy="26" rx="11" ry="9" fill="#334477"/><ellipse cx="20" cy="20" rx="8" ry="10" fill="#3399cc"/><circle cx="15" cy="18" r="2.5" fill="white"/><circle cx="25" cy="18" r="2.5" fill="white"/><circle cx="15.5" cy="18.5" r="1.5" fill="#1a1a1a"/><circle cx="25.5" cy="18.5" r="1.5" fill="#1a1a1a"/><path d="M15 24 Q20 28 25 24" stroke="#1a4a88" stroke-width="1.5" fill="none"/><ellipse cx="20" cy="30" rx="7" ry="4" fill="#2255aa"/>`;
+const HAMST_SVG=`<circle cx="20" cy="20" r="19" fill="#d4a060" stroke="#b08040" stroke-width="1.5"/><ellipse cx="20" cy="23" rx="13" ry="12" fill="#e8b878"/><ellipse cx="10" cy="22" rx="5" ry="6" fill="#e8b878"/><ellipse cx="30" cy="22" rx="5" ry="6" fill="#e8b878"/><circle cx="15" cy="18" r="3" fill="white"/><circle cx="25" cy="18" r="3" fill="white"/><circle cx="15.5" cy="18.5" r="1.8" fill="#2a1a0a"/><circle cx="25.5" cy="18.5" r="1.8" fill="#2a1a0a"/><ellipse cx="20" cy="24" rx="4" ry="2.5" fill="#f0c090"/><circle cx="20" cy="25" r="1.5" fill="#cc7766"/>`;
+const LOSS_SVG=`<circle cx="20" cy="20" r="19" fill="#444" stroke="#333" stroke-width="1.5"/><line x1="10" y1="10" x2="10" y2="30" stroke="white" stroke-width="2"/><line x1="10" y1="10" x2="20" y2="13" stroke="white" stroke-width="2"/><line x1="10" y1="20" x2="18" y2="23" stroke="white" stroke-width="2"/><circle cx="27" cy="15" r="5" fill="none" stroke="white" stroke-width="2"/><line x1="27" y1="21" x2="27" y2="30" stroke="white" stroke-width="2"/><line x1="22" y1="25" x2="32" y2="25" stroke="white" stroke-width="2"/>`;
+
+const ASSETS={
+  PEPE:{svg:PEPE_SVG,name:'Rare Pepe Classic · Matt Furie 2005',price:0.0069,change:'+8.2%',dir:'up',tier:'ARCHETYPE',vintage:'2005',supply:'6,969 FIXED',royalty:'5% on resale',hash:'0x9f2c4a1b7d3e8a6c...2d4a',scarcity:94,note:'ULTRA-RARE',microcopy:'Feels good man. Provably rare.',ancestry:[{y:'2005',n:'Feels Good Man (Matt Furie)',c:'#00ff88'},{y:'2008',n:'4chan emergence',c:'#00d4ff'},{y:'2016',n:'Cultural ascendance',c:'#ff3366'},{y:'2021',n:'Rare Pepe NFT era',c:'#ffb800'}],accessories:[{t:'REACT',n:'REACT-PEPE-001',y:'1% pool share'},{t:'REMIX',n:'REMIX-PEPE-420',y:'2.5% royalty'},{t:'VVIX',n:'VVIX-PEPE-DEC26',y:'Strike: 0.01 USDC'}]},
+  RROL:{svg:RROL_SVG,name:'Original RickRoll · 2006 YouTube Archive',price:4.20,change:'+12.4%',dir:'up',tier:'ARCHETYPE',vintage:'2006',supply:'10,000 FIXED',royalty:'2% on resale',hash:'0x7a3b9f2c1e8d4a6b...8f2c',scarcity:87,note:'DIAMOND HANDS',microcopy:"Confirm? You're about to RickRoll yourself.",ancestry:[{y:'2006',n:'Original RickRoll (YouTube)',c:'#00ff88'},{y:'2007',n:"RickRoll'd phenomenon",c:'#00d4ff'},{y:'2008',n:'DuckRoll variant',c:'#9d6fff'},{y:'2020',n:'Modern remix cohort',c:'#ffb800'}],accessories:[{t:'REMIX',n:'REMIX-RROL-042',y:'3% royalty'},{t:'REACT',n:'REACT-RROL-128',y:'0.5% pool share'},{t:'VVIX',n:'VVIX-RROL-JUN26',y:'Strike: 5.00 USDC'}]},
+  DOGE:{svg:DOGE_SVG,name:'Such Doge Wow · Kabosu 2010',price:0.42,change:'+3.1%',dir:'up',tier:'ARCHETYPE',vintage:'2010',supply:'42,000 FIXED',royalty:'1% on resale',hash:'0x3c8b2d5f9a1e4b7d...9f1a',scarcity:71,note:'MODERATE DIST.',microcopy:'Much wow. Very CDMR. So trade.',ancestry:[{y:'2010',n:'Kabosu photo (original)',c:'#00ff88'},{y:'2013',n:'Doge meme birth',c:'#00d4ff'},{y:'2013',n:'DogeCoin launch',c:'#ffb800'},{y:'2021',n:'Elon pump cycle',c:'#ff3366'}],accessories:[{t:'VVIX',n:'VVIX-DOGE-DEC26',y:'Strike: 0.50 USDC'},{t:'REACT',n:'REACT-DOGE-069',y:'0.2% pool'}]},
+  NYAN:{svg:NYAN_SVG,name:'Nyan Cat · prguitarman 2011',price:6.66,change:'+4.2%',dir:'up',tier:'ARCHETYPE',vintage:'2011',supply:'6,660 FIXED',royalty:'3% on resale',hash:'0x4f9a2b6c1e3d8a5b...2c9f',scarcity:82,note:'STRONG HANDS',microcopy:'Poptart cat confirmed. Buy the rainbow.',ancestry:[{y:'2011',n:'Original Nyan Cat video',c:'#00ff88'},{y:'2011',n:'YouTube viral explosion',c:'#00d4ff'},{y:'2021',n:'NFT auction (300 ETH)',c:'#ffb800'},{y:'2024',n:'mDTC CDMR issuance',c:'#9d6fff'}],accessories:[{t:'REACT',n:'REACT-NYAN-001',y:'1.5% pool'},{t:'REMIX',n:'REMIX-NYAN-420',y:'3% royalty'},{t:'VVIX',n:'VVIX-NYAN-JAN27',y:'Strike: 7.00 USDC'}]},
+  WOJAK:{svg:WOJAK_SVG,name:'Wojak / Feels Bad Man · 2010',price:1.99,change:'-5.4%',dir:'down',tier:'PROTO-MEME',vintage:'2010',supply:'2,010 FIXED',royalty:'3% on resale',hash:'0x2a9c3d5b1f8e4a6c...3b2a',scarcity:68,note:'EMOTIONAL VOLATILITY',microcopy:"It's crying time. Sell? Or hold?",ancestry:[{y:'2010',n:'Wojak original (Polish forums)',c:'#00ff88'},{y:'2012',n:'Feels bad man spread',c:'#00d4ff'},{y:'2018',n:'Doomer/Coomer variants',c:'#9d6fff'},{y:'2021',n:'NPC meme derivative',c:'#ff3366'}],accessories:[{t:'REACT',n:'REACT-WOJAK-128',y:'0.5% pool share'},{t:'REMIX',n:'REMIX-WOJAK-001',y:'Doomer rights 2%'},{t:'VVIX',n:'VVIX-WOJAK-MAR27',y:'Strike: 2.50 USDC'}]},
+  CHAD:{svg:CHAD_SVG,name:'Virgin vs Chad · 2017',price:3.14,change:'+6.9%',dir:'up',tier:'PROTO-MEME',vintage:'2017',supply:'3,141 FIXED',royalty:'3% on resale',hash:'0x6b1e4f9c2a3d5e8b...7a4c',scarcity:75,note:'STRONG CONVICTION',microcopy:'Based. Buy like a Chad.',ancestry:[{y:'2017',n:'Virgin vs Chad original',c:'#00ff88'},{y:'2018',n:'Nordic Gamer variant',c:'#00d4ff'},{y:'2019',n:'Yes Chad emergence',c:'#9d6fff'},{y:'2022',n:'Based Chad meme peak',c:'#ffb800'}],accessories:[{t:'REMIX',n:'REMIX-CHAD-001',y:'Yes Chad rights 3%'},{t:'REACT',n:'REACT-CHAD-042',y:'1% pool share'}]},
+  FPNC:{svg:FPNC_SVG,name:'FatPenguin NonCorp · OTC Pink 2006',price:1.08,change:'+0.9%',dir:'up',tier:'PROTO-MEME',vintage:'2006',supply:'2,000 FIXED',royalty:'3% on resale',hash:'0x2b7f9a3c1e5d8b4a...7c3b',scarcity:62,note:'OTC HERITAGE',microcopy:'OTC legend. Genesis holder priority.',ancestry:[{y:'2006',n:'FPNC Pink Sheet listing',c:'#00ff88'},{y:'2007',n:'Forum cult following',c:'#9d6fff'},{y:'2009',n:'Delisted (OTC collapse)',c:'#ff3366'},{y:'2024',n:'mDTC resurrection',c:'#ffb800'}],accessories:[{t:'REMIX',n:'REMIX-FPNC-001',y:'5% royalty'},{t:'REACT',n:'REACT-FPNC-042',y:'1% pool share'}]},
+  HAMST:{svg:HAMST_SVG,name:'Hamster Dance · Hampton 1998',price:0.33,change:'-2.4%',dir:'down',tier:'PROTO-MEME',vintage:'1998',supply:'1,998 FIXED',royalty:'4% on resale',hash:'0x6d1a4b8c3f2e9a7b...4e2d',scarcity:55,note:'DISTRIBUTED',microcopy:'Da da da da da. Ancient artifact.',ancestry:[{y:'1998',n:"Hampton's Hamster Dance OG",c:'#00ff88'},{y:'1999',n:'Viral email era',c:'#00d4ff'},{y:'2001',n:'Flash animation era',c:'#9d6fff'}],accessories:[{t:'REACT',n:'REACT-HAMST-001',y:'2% pool'}]},
+  LOSS:{svg:LOSS_SVG,name:'Loss.jpg · Ctrl+Alt+Del 2008',price:2.11,change:'+0.0%',dir:'flat',tier:'PROTO-MEME',vintage:'2008',supply:'2,008 FIXED',royalty:'2% on resale',hash:'0x8e4c6f1a3b9d2e5c...1a3b',scarcity:78,note:'CONCENTRATED',microcopy:'Is this... a buy signal?',ancestry:[{y:'2008',n:'Loss.jpg published (CAD)',c:'#00ff88'},{y:'2009',n:'Ironic rediscovery',c:'#9d6fff'},{y:'2012',n:'Abstract derivative era',c:'#ffb800'}],accessories:[{t:'REMIX',n:'REMIX-LOSS-001',y:'Ironic remix rights'},{t:'REACT',n:'REACT-LOSS-128',y:'0.3% pool'}]}
+};
+
+let currentAsset='PEPE',ticketSide='buy',chart=null;
+
+function selectAsset(ticker,el){
+  currentAsset=ticker;
+  document.querySelectorAll('.watch-item').forEach(x=>x.classList.remove('active'));
+  if(el)el.classList.add('active');
+  const a=ASSETS[ticker];
+  document.getElementById('hdr-avatar').innerHTML=a.svg;
+  document.getElementById('hdr-ticker').textContent=ticker;
+  document.getElementById('hdr-ticker').className='asset-ticker '+a.dir;
+  document.getElementById('hdr-name').textContent=a.name;
+  const pe=document.getElementById('hdr-price');
+  pe.textContent=a.price<0.01?a.price.toFixed(4):a.price.toFixed(2);
+  pe.className='asset-price '+a.dir;
+  const ce=document.getElementById('hdr-change');
+  ce.textContent=(a.dir==='up'?'▲ ':'▼ ')+a.change;
+  ce.className='asset-change-big '+a.dir;
+  document.getElementById('hdr-tier').textContent=a.tier;
+  document.getElementById('prov-ticker').textContent=ticker;
+  document.getElementById('prov-vintage').textContent=a.vintage;
+  document.getElementById('prov-supply').textContent=a.supply;
+  document.getElementById('prov-royalty').textContent=a.royalty;
+  document.getElementById('prov-hash').textContent=a.hash;
+  document.getElementById('scarcity-fill').style.width=a.scarcity+'%';
+  document.getElementById('scarcity-pct').textContent=a.scarcity+'% TOP-10';
+  document.getElementById('scarcity-note').textContent=a.note;
+  document.getElementById('t-price').value=a.price<0.01?a.price.toFixed(4):a.price.toFixed(2);
+  document.getElementById('t-copy').textContent=a.microcopy;
+  updateTotal();
+  renderAncestry(a.ancestry);
+  renderAccessories(a.accessories);
+  renderOrderBook(a.price);
+  renderTrades(a.price);
+  renderChart(a.price);
+}
+
+function renderAncestry(tree){
+  const c=document.getElementById('ancestry-tree');c.innerHTML='';
+  tree.forEach((item,i)=>{
+    const d=document.createElement('div');d.className='ancestry-item';
+    d.innerHTML=`<div class="ancestry-line"><div class="ancestry-dot" style="background:${item.c}"></div>${i<tree.length-1?'<div class="ancestry-connector"></div>':''}</div><div class="ancestry-text"><span class="ancestry-year">${item.y} · </span><span class="ancestry-name">${item.n}</span></div>`;
+    c.appendChild(d);
+  });
+}
+function renderAccessories(list){
+  const c=document.getElementById('accessories-list');c.innerHTML='';
+  list.forEach(a=>{
+    const d=document.createElement('div');d.className='acc-item';
+    d.innerHTML=`<div><div class="acc-type">${a.t}</div><div class="acc-name">${a.n}</div></div><div class="acc-yield">${a.y}</div>`;
+    c.appendChild(d);
+  });
+}
+function renderOrderBook(mid){
+  const ar=document.getElementById('ask-rows'),br=document.getElementById('bid-rows');
+  ar.innerHTML='';br.innerHTML='';
+  const sp=mid*0.005;
+  document.getElementById('spread-val').textContent=sp.toFixed(4)+' USDC';
+  const asks=[0.04,0.03,0.02,0.01].map(d=>({p:mid+mid*d,s:Math.floor(Math.random()*800)+100}));
+  const bids=[0.01,0.02,0.03,0.05].map(d=>({p:mid-mid*d,s:Math.floor(Math.random()*800)+100}));
+  const maxS=Math.max(...asks.map(x=>x.s),...bids.map(x=>x.s));
+  asks.reverse().forEach(a=>{
+    const row=document.createElement('div');row.className='ob-row';
+    const pct=(a.s/maxS*100).toFixed(0);
+    const pr=mid<0.01?a.p.toFixed(4):a.p.toFixed(2);
+    row.innerHTML=`<div class="ob-bar ask" style="width:${pct}%"></div><span class="ob-price down">${pr}</span><span class="ob-size">${a.s}</span>`;
+    ar.appendChild(row);
+  });
+  bids.forEach(b=>{
+    const row=document.createElement('div');row.className='ob-row';
+    const pct=(b.s/maxS*100).toFixed(0);
+    const pr=mid<0.01?b.p.toFixed(4):b.p.toFixed(2);
+    row.innerHTML=`<div class="ob-bar bid" style="width:${pct}%"></div><span class="ob-price up">${pr}</span><span class="ob-size">${b.s}</span>`;
+    br.appendChild(row);
+  });
+}
+function renderTrades(mid){
+  const tape=document.getElementById('trades-tape');tape.innerHTML='';
+  const now=new Date();
+  for(let i=0;i<8;i++){
+    const offset=(Math.random()-0.5)*mid*0.03;
+    const p=mid+offset;
+    const pr=mid<0.01?p.toFixed(6):p.toFixed(4);
+    const s=Math.floor(Math.random()*500)+50;
+    const t=new Date(now-i*30000);
+    const ts=t.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    const dir=offset>0?'up':'down';
+    const row=document.createElement('div');row.className='trade-row';
+    row.innerHTML=`<span class="trade-price ${dir}">${pr}</span><span class="trade-size">${s}</span><span class="trade-time">${ts}</span>`;
+    tape.appendChild(row);
+  }
+}
+function renderChart(price){
+  const ctx=document.getElementById('mainChart').getContext('2d');
+  if(chart)chart.destroy();
+  const labels=[],opens=[],closes=[],highs=[],lows=[];
+  let p=price*0.85;
+  for(let i=0;i<24;i++){
+    const h=new Date();h.setHours(h.getHours()-23+i);
+    labels.push(h.getHours().toString().padStart(2,'0')+':00');
+    const o=p,ch=(Math.random()-0.45)*p*0.05,c=o+ch;
+    opens.push(o);closes.push(c);
+    highs.push(Math.max(o,c)+Math.random()*p*0.02);
+    lows.push(Math.min(o,c)-Math.random()*p*0.02);
+    p=c;
+  }
+  chart=new Chart(ctx,{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'Price',data:closes,backgroundColor:closes.map((c,i)=>c>=opens[i]?'rgba(0,255,136,0.7)':'rgba(255,51,102,0.7)'),borderColor:closes.map((c,i)=>c>=opens[i]?'#00ff88':'#ff3366'),borderWidth:1},
+      {label:'Volume',data:closes.map(()=>Math.floor(Math.random()*500)+100),backgroundColor:'rgba(0,212,255,0.15)',type:'bar',yAxisID:'y2'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+      x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#555',font:{size:9,family:"'IBM Plex Mono',monospace"},maxTicksLimit:8,maxRotation:0}},
+      y:{position:'right',grid:{color:'rgba(255,255,255,0.06)'},ticks:{color:'#888',font:{size:9,family:"'IBM Plex Mono',monospace"},callback:v=>price<0.01?v.toFixed(4):v.toFixed(2)}},
+      y2:{display:false}
+    }}
+  });
+}
+function updateTotal(){
+  const p=parseFloat(document.getElementById('t-price').value)||0;
+  const q=parseFloat(document.getElementById('t-qty').value)||0;
+  document.getElementById('t-total').textContent=(p*q).toFixed(2)+' USDC';
+}
+function setTicketSide(side){
+  ticketSide=side;
+  document.querySelector('.buy-tab').classList.toggle('active',side==='buy');
+  document.querySelector('.sell-tab').classList.toggle('active',side==='sell');
+  const btn=document.getElementById('t-submit');
+  btn.className='ticket-submit '+side;
+  btn.textContent='▶ PLACE '+side.toUpperCase()+' ORDER';
+}
+function placeOrder(){
+  const btn=document.getElementById('t-submit');
+  const orig=btn.textContent;
+  btn.textContent='✓ ORDER PLACED · T+0 SETTLE';
+  btn.style.opacity='0.7';
+  setTimeout(()=>{btn.textContent=orig;btn.style.opacity='1';},2000);
+}
+function setTF(el){
+  document.querySelectorAll('.tf-tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  renderChart(ASSETS[currentAsset].price);
+}
+function setOT(el){
+  document.querySelectorAll('.order-type-btn').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+}
+function switchTab(tab){
+  const tabs=['trader','portfolio','genesis'];
+  document.querySelectorAll('.nav-tab').forEach((el,i)=>{el.classList.toggle('active',tabs[i]===tab);});
+  document.getElementById('trader-view').style.display=tab==='trader'?'grid':'none';
+  document.getElementById('portfolio-view').style.display=tab==='portfolio'?'block':'none';
+  document.getElementById('genesis-view').style.display=tab==='genesis'?'block':'none';
+}
+function updateClock(){document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-US',{hour12:false})+' UTC';}
+setInterval(updateClock,1000);updateClock();
+
+function randomTick(){
+  Object.keys(ASSETS).forEach(ticker=>{
+    const a=ASSETS[ticker];
+    const delta=(Math.random()-0.48)*a.price*0.003;
+    a.price=Math.max(0.0001,a.price+delta);
+    const el=document.getElementById('w-'+ticker+'-price');
+    if(el){
+      const nv=a.price<0.01?a.price.toFixed(4):a.price.toFixed(2);
+      el.textContent=nv;
+    }
+  });
+  if(currentAsset){renderOrderBook(ASSETS[currentAsset].price);}
+}
+setInterval(randomTick,1800);
+
+let auctionSecs=47*3600+22*60+14;
+setInterval(()=>{
+  auctionSecs=Math.max(0,auctionSecs-1);
+  const h=Math.floor(auctionSecs/3600),m=Math.floor((auctionSecs%3600)/60),s=auctionSecs%60;
+  const el=document.getElementById('auction-timer');
+  if(el)el.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+},1000);
+
+selectAsset('PEPE',document.querySelector('.watch-item'));
+</script>
+</body>
+</html>
