@@ -18,26 +18,32 @@
 }
 
 :root {
-  --bg: #0a0a0a;
-  --bg2: #0d0d0d;
-  --bg3: #141414;
-  --bg4: #1a1a1a;
-  --bg5: #222222;
-  --border: #2a2a2a;
-  --border2: #333333;
-  --border3: #1f1f1f;
+  --bg: #07060f;
+  --bg2: #0c0a1a;
+  --bg3: #110f20;
+  --bg4: #18152a;
+  --bg5: #1f1b35;
+  --border: #232045;
+  --border2: #2d2855;
+  --border3: #1a1640;
+  --gold: #f7cd1c;
+  --gold-dark: #c4a010;
+  --blue: #003173;
+  --blue-light: #004aaa;
   --green: #00ff88;
   --red: #ff3366;
   --amber: #ffb800;
   --cyan: #00d4ff;
   --purple: #9d6fff;
   --pink: #ff66aa;
-  --text: #e8e8e8;
-  --text2: #999999;
-  --text3: #666666;
-  --text4: #444444;
+  --text: #e8e6f0;
+  --text2: #9995b0;
+  --text3: #6b6780;
+  --text4: #4a4660;
   --mono: "IBM Plex Mono", monospace;
   --space: "Space Mono", monospace;
+  --glow-gold: 0 0 15px rgba(247, 205, 28, 0.4);
+  --glow-blue: 0 0 15px rgba(0, 49, 115, 0.4);
   --glow-green: 0 0 12px rgba(0, 255, 136, 0.3);
   --glow-red: 0 0 12px rgba(255, 51, 102, 0.3);
   --sidebar-width: 200px;
@@ -45,6 +51,38 @@
 }
 
 html,
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(157, 111, 255, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(0, 212, 255, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(247, 205, 28, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.3), transparent),
+    radial-gradient(1px 1px at 40% 55%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 55% 25%, rgba(255,255,255,0.2), transparent),
+    radial-gradient(1px 1px at 70% 45%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 85% 65%, rgba(255,255,255,0.3), transparent),
+    radial-gradient(1.5px 1.5px at 15% 75%, rgba(247,205,28,0.5), transparent),
+    radial-gradient(1px 1px at 60% 10%, rgba(0,212,255,0.4), transparent),
+    radial-gradient(1px 1px at 90% 30%, rgba(255,255,255,0.3), transparent),
+    radial-gradient(1px 1px at 45% 70%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1.5px 1.5px at 75% 90%, rgba(157,111,255,0.4), transparent),
+    radial-gradient(1px 1px at 20% 20%, rgba(255,255,255,0.2), transparent),
+    radial-gradient(1px 1px at 50% 40%, rgba(255,255,255,0.3), transparent);
+  pointer-events: none;
+  z-index: 1;
+}
 body {
   height: 100%;
   background: var(--bg);
@@ -81,11 +119,11 @@ input {
   background: var(--bg2);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border2);
+  background: var(--gold);
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text3);
+  background: var(--gold-dark);
 }
 
 ::selection {
@@ -108,10 +146,10 @@ input {
 }
 .sidebar-toggle:hover{
   background: var(--bg3);
-  color: var(--text);
+  color: var(--gold);
 }
 .sidebar-toggle.active{
-  color: var(--green);
+  color: var(--gold);
 }
 
 /* ============ TERMINAL SHELL ============ */
@@ -121,6 +159,8 @@ input {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+  position: relative;
+  z-index: 2;
 }
 
 /* ============ TOP BAR ============ */
@@ -158,9 +198,9 @@ input {
   font-family: var(--space);
   font-size: 13px;
   font-weight: 700;
-  color: var(--green);
+  color: var(--gold);
   letter-spacing: 1.5px;
-  text-shadow: var(--glow-green);
+  text-shadow: var(--glow-gold);
 }
 
 .logo-text span {
@@ -351,8 +391,8 @@ input {
 }
 
 .search-input:focus {
-  border-color: var(--green);
-  box-shadow: inset 0 0 0 1px rgba(0, 255, 136, 0.15);
+  border-color: var(--gold);
+  box-shadow: inset 0 0 0 1px rgba(247, 205, 28, 0.15);
 }
 
 .nav-tabs {
@@ -378,9 +418,9 @@ input {
 }
 
 .nav-tab.active {
-  color: var(--green);
-  border-bottom-color: var(--green);
-  text-shadow: 0 0 8px rgba(0, 255, 136, 0.4);
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+  text-shadow: var(--glow-gold);
 }
 
 .nav-tab:hover {
@@ -483,7 +523,7 @@ input {
 
 .watch-item.active {
   background: var(--bg4);
-  border-left: 2px solid var(--green);
+  border-left: 2px solid var(--gold);
 }
 
 .watch-item.flash-up {
@@ -992,12 +1032,11 @@ input {
 .ticket-tab.sell {
   color: var(--red);
 }
-
 .ticket-tab.buy.active {
-  background: var(--green);
-  color: #000;
-  border-color: var(--green);
-  box-shadow: var(--glow-green);
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue-light);
+  box-shadow: var(--glow-blue);
 }
 
 .ticket-tab.sell.active {
@@ -1147,14 +1186,14 @@ input {
   transition: all 0.2s;
   border-radius: 2px;
 }
-
 .ticket-submit.buy {
-  background: var(--green);
-  color: #000;
+  background: var(--blue);
+  color: #fff;
 }
 
 .ticket-submit.buy:hover {
-  box-shadow: var(--glow-green);
+  background: var(--blue-light);
+  box-shadow: var(--glow-blue);
 }
 
 .ticket-submit.sell {
@@ -1202,7 +1241,7 @@ input {
 
 .info-card-header {
   font-size: 9px;
-  color: var(--text4);
+  color: var(--gold);
   letter-spacing: 1.5px;
   text-transform: uppercase;
   font-weight: 600;
@@ -1252,22 +1291,22 @@ input {
   gap: 6px;
   margin-top: 8px;
   padding: 5px 8px;
-  background: rgba(0, 255, 136, 0.05);
-  border: 1px solid rgba(0, 255, 136, 0.2);
+  background: rgba(247, 205, 28, 0.05);
+  border: 1px solid rgba(247, 205, 28, 0.2);
   border-radius: 2px;
 }
 
 .verified-dot {
   width: 6px;
   height: 6px;
-  background: var(--green);
+  background: var(--gold);
   border-radius: 50%;
-  box-shadow: 0 0 6px var(--green);
+  box-shadow: 0 0 6px var(--gold);
 }
 
 .verified-text {
   font-size: 8px;
-  color: var(--green);
+  color: var(--gold);
   letter-spacing: 1px;
   font-weight: 600;
 }
@@ -1437,7 +1476,7 @@ input {
   flex-shrink: 0;
   padding: 0 12px;
   font-size: 8px;
-  color: var(--amber);
+  color: var(--gold);
   letter-spacing: 1.5px;
   font-weight: 700;
   border-right: 1px solid var(--border);
@@ -1774,14 +1813,15 @@ input {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
-  background: var(--amber);
+  background: var(--blue);
   color: #000;
   border-radius: 3px;
   transition: all 0.2s;
 }
 
 .genesis-bid-btn:hover {
-  box-shadow: 0 0 20px rgba(255, 184, 0, 0.4);
+ background: var(--blue-light);
+  box-shadow: var(--glow-blue);
 }
 
 .genesis-bid-note {
@@ -1989,6 +2029,13 @@ input {
     flex: 1;
   }
 }
+.logo-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
 </style>
 </head>
 <body>
@@ -1996,8 +2043,7 @@ input {
   <!-- ========== TOP BAR ========== -->
   <div class="topbar">
     <div class="logo-wrap" onclick="location.reload()">
-      <img class="logo-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%230a0a0a'/%3E%3Ctext x='50' y='68' font-family='monospace' font-size='52' font-weight='900' fill='%2300ff88' text-anchor='middle'%3EN%3C/text%3E%3Crect x='22' y='36' width='4' height='28' rx='2' fill='%2300ff88'/%3E%3Crect x='74' y='36' width='4' height='28' rx='2' fill='%2300ff88'/%3E%3C/svg%3E" alt="N" />
-      <div class="logo-text">NASDANQ</div>
+      <img class="logo-img" src="logo.jpg" alt="MEME ECONOMY" id="logoImage" /> <div class="logo-text">MEME ECONOMY</div>
     </div>
     <div class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle Sidebar (Ctrl+M)">
   ☰
